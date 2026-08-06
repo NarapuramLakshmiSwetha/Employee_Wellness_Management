@@ -552,7 +552,7 @@
     </div>
 
     <!-- Frontend Script -->
-    <script src="static/js/app.js?v=6.0"></script>
+    <script src="static/js/app.js?v=7.0"></script>
     <script>
         // Custom Scripting for Split-Screen Nav & Contact Formspree Submissions
         document.addEventListener('DOMContentLoaded', () => {
@@ -575,53 +575,39 @@
                 }
             }
 
-            // Bind Navigation links to switch tabs inside the authentication card
-            document.getElementById('nav-home')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('tab-login')?.click();
-                updateActiveNav('nav-home');
-                toggleLeftIllustration(false);
-            });
+            // Clean Panel & Tab Switcher
+            function showPanel(type) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.auth-panel').forEach(panel => panel.classList.remove('active'));
 
-            document.getElementById('nav-login')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('tab-login')?.click();
-                updateActiveNav('nav-login');
-                toggleLeftIllustration(false);
-            });
+                if (type === 'login') {
+                    document.getElementById('tab-login')?.classList.add('active');
+                    document.getElementById('panel-login')?.classList.add('active');
+                    updateActiveNav('nav-login');
+                    toggleLeftIllustration(false);
+                } else if (type === 'register') {
+                    document.getElementById('tab-register')?.classList.add('active');
+                    document.getElementById('panel-register')?.classList.add('active');
+                    updateActiveNav('nav-signup');
+                    toggleLeftIllustration(true);
+                } else if (type === 'admin') {
+                    document.getElementById('tab-admin')?.classList.add('active');
+                    document.getElementById('panel-admin')?.classList.add('active');
+                    updateActiveNav('nav-home');
+                    toggleLeftIllustration(false);
+                }
+            }
 
-            document.getElementById('nav-signup')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('tab-register')?.click();
-                updateActiveNav('nav-signup');
-                toggleLeftIllustration(true);
-            });
+            document.getElementById('nav-home')?.addEventListener('click', (e) => { e.preventDefault(); showPanel('login'); });
+            document.getElementById('nav-login')?.addEventListener('click', (e) => { e.preventDefault(); showPanel('login'); });
+            document.getElementById('nav-signup')?.addEventListener('click', (e) => { e.preventDefault(); showPanel('register'); });
 
-            // Update Nav Highlights when user clicks tabs inside the login card
-            document.getElementById('tab-login')?.addEventListener('click', () => {
-                updateActiveNav('nav-login');
-                toggleLeftIllustration(false);
-            });
-            document.getElementById('tab-register')?.addEventListener('click', () => {
-                updateActiveNav('nav-signup');
-                toggleLeftIllustration(true);
-            });
-            document.getElementById('tab-admin')?.addEventListener('click', () => {
-                updateActiveNav('nav-home');
-                toggleLeftIllustration(false);
-            });
-            document.getElementById('back-to-login')?.addEventListener('click', () => {
-                updateActiveNav('nav-login');
-                toggleLeftIllustration(false);
-            });
-            document.getElementById('back-to-login')?.addEventListener('click', () => {
-                updateActiveNav('nav-login');
-                toggleLeftIllustration(false);
-            });
-            document.getElementById('link-back-login')?.addEventListener('click', () => {
-                updateActiveNav('nav-login');
-                toggleLeftIllustration(false);
-            });
+            document.getElementById('tab-login')?.addEventListener('click', () => showPanel('login'));
+            document.getElementById('tab-register')?.addEventListener('click', () => showPanel('register'));
+            document.getElementById('tab-admin')?.addEventListener('click', () => showPanel('admin'));
+
+            document.getElementById('back-to-login')?.addEventListener('click', () => showPanel('login'));
+            document.getElementById('link-back-login')?.addEventListener('click', () => showPanel('login'));
 
             // About modal controls using standard modal overlays classes
             document.getElementById('nav-about')?.addEventListener('click', (e) => {

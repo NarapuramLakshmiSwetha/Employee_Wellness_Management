@@ -1,0 +1,4 @@
+flask>=3.0.0
+werkzeug>=3.0.0
+fpdf>=1.7.2
+vaderSentiment>=3.3.2

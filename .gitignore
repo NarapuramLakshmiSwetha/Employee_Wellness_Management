@@ -1,0 +1,10 @@
+database.db
+wellness.db
+otp.txt
+__pycache__/
+*.pyc
+*.pyo
+.env
+.vscode/
+scratch/
+test_out.pdf

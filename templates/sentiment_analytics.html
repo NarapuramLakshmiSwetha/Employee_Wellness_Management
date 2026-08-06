@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health & Sentiment Analytics</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .section-card {
+            position: relative;
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title i {
+            color: var(--secondary);
+        }
+        .sentiment-textarea {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            font-size: 15px;
+            font-family: inherit;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.25s ease;
+            margin-bottom: 20px;
+        }
+        .sentiment-textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        .sentiment-btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .char-counter {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .btn-analyze {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transition: all 0.25s ease;
+        }
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+        .btn-analyze:disabled {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Results Box Styles */
+        .result-panel {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        @media(max-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .score-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .score-val {
+            font-size: 48px;
+            font-weight: 800;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .sentiment-badge {
+            font-size: 14px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+        .sentiment-positive {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .sentiment-neutral {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .sentiment-negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .meter-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+            position: relative;
+        }
+        .meter-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .meter-positive { background: #10b981; }
+        .meter-neutral { background: #f59e0b; }
+        .meter-negative { background: #ef4444; }
+
+        .score-bar-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .score-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .score-percentage {
+            font-weight: 700;
+            color: #fff;
+        }
+        .health-status-box {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .health-status-item {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 12px 10px;
+            text-align: center;
+        }
+        .health-status-lbl {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .health-status-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        /* History Section Styles */
+        .history-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .history-table th, .history-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+        .history-table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        .history-feedback-cell {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-primary);
+        }
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+        .badge-excellent { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-good { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .badge-average { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-attention { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    </style>
+</head>
+<body id="dashboard-view">
+    <!-- Sliding Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile" style="align-items: center;">
+                <div class="logo-icon" style="width: 32px; height: 32px; font-size: 14px; margin-bottom: 0; border-radius: 8px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 16px; color: #fff; margin-left: 10px;">Wellness Hub</span>
+            </div>
+            <button class="sidebar-close" id="btn-sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                {% if profile_photo %}
+                    <img src="{{ profile_photo }}" alt="Avatar">
+                {% else %}
+                    {{ username[0].upper() if username else 'U' }}
+                {% endif %}
+            </div>
+            <h4 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px;">{{ username }}</h4>
+            <p style="font-size: 12px; color: var(--primary); font-weight: 600;">Employee Profile</p>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="/dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/security">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Security</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a id="btn-sidebar-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Floating Background Lighting Blobs -->
+    <div class="bg-bubbles">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Dashboard Content Wrapper -->
+    <div class="dashboard-wrapper" style="max-width: 1100px; margin: 0 auto; width: 100%; padding: 40px 20px;">
+        <!-- Header Nav Bar -->
+        <header class="dash-header glass-card" style="padding: 15px 30px; border-radius: 16px; margin-bottom: 40px;">
+            <div class="user-profile">
+                <button class="btn-hamburger" id="btn-sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo-icon" style="width: 40px; height: 40px; font-size: 16px; margin-bottom: 0; border-radius: 10px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="user-info">
+                    <h1 class="project-title" style="font-size: 16px; margin-bottom: 0;">Employee Wellness</h1>
+                    <p class="project-subtitle" style="font-size: 10px; letter-spacing: 1px;">Analytics Hub</p>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center;">
+                    {% if profile_photo %}
+                        <img src="{{ profile_photo }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        {{ username[0].upper() if username else 'U' }}
+                    {% endif %}
+                </div>
+                <div class="user-info" style="text-align: left; margin-right: 15px;">
+                    <h4>Welcome, {{ username }}</h4>
+                    <p style="color: var(--primary);">Employee Profile</p>
+                </div>
+                <button onclick="window.location.href='/dashboard'" class="btn-logout" style="background: rgba(255,255,255,0.05); color: #fff; margin-right: 10px; border-color: rgba(255,255,255,0.1);">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Section Title -->
+        <div style="margin-bottom: 40px; text-align: left;">
+            <h2 style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mental Health & Sentiment Analytics</h2>
+            <p style="color: var(--text-secondary); font-size: 15px; margin-top: 5px;">Share your weekly journal thoughts or general feedback below. Our natural language tool detects sentiment trends, stress alerts, and risk categories to offer tailored emotional support.</p>
+        </div>
+
+        <!-- Global Alert Info Box -->
+        <div class="alert-box" id="alert-sentiment" style="margin-bottom: 30px; display: none;">
+            <i class="fas fa-info-circle alert-icon"></i>
+            <span class="alert-msg"></span>
+        </div>
+
+        <!-- Submission Form Card -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-pen-fancy"></i>
+                    Weekly Wellness Journal & Feedback
+                </h3>
+            </div>
+            
+            <form id="sentiment-form">
+                <textarea 
+                    id="feedback-text" 
+                    class="sentiment-textarea" 
+                    placeholder="How was your week? Tell us about your work environment, stresses, achievements, or any concerns you have..."
+                    maxlength="1500"
+                ></textarea>
+                
+                <div class="sentiment-btn-container">
+                    <span class="char-counter"><span id="char-count">0</span> / 1500 characters</span>
+                    <button type="submit" class="btn-analyze" id="btn-submit-sentiment">
+                        <i class="fas fa-brain"></i>
+                        Analyze Sentiment
+                    </button>
+                </div>
+            </form>
+
+            <!-- Loading Spinner inside Card -->
+            <div id="sentiment-loading" style="display: none; text-align: center; margin-top: 20px; color: var(--secondary);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top: 8px; font-size: 14px;">Analyzing text logs with VADER Sentiment Engine...</p>
+            </div>
+
+            <!-- Dynamic Results Panel -->
+            <div class="result-panel" id="result-panel">
+                <div class="section-header" style="margin-top: 20px;">
+                    <h3 class="section-title" style="color: var(--secondary);">
+                        <i class="fas fa-chart-pie"></i>
+                        VADER Sentiment Analysis Results
+                    </h3>
+                </div>
+                
+                <div class="result-grid">
+                    <!-- Left column: Primary metrics -->
+                    <div class="score-card">
+                        <div style="color: var(--text-secondary); font-size: 14px; font-weight: 600;">Overall Sentiment</div>
+                        <div id="res-sentiment" class="sentiment-badge sentiment-positive">Positive</div>
+                        
+                        <div style="color: var(--text-secondary); font-size: 14px; font-weight: 600; margin-top: 25px;">Compound Polarity Score</div>
+                        <div class="score-val" id="res-compound" style="color: var(--secondary);">+0.85</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">(Scale: -1.0 to +1.0)</div>
+                        
+                        <div class="meter-container">
+                            <div class="meter-bar meter-positive" id="res-meter-bar" style="width: 85%;"></div>
+                        </div>
+
+                        <div class="health-status-box">
+                            <div class="health-status-item">
+                                <span class="health-status-lbl">Mental Health Status</span>
+                                <span class="health-status-val" id="res-health-status">Excellent</span>
+                            </div>
+                            <div class="health-status-item">
+                                <span class="health-status-lbl">Stress Risk Level</span>
+                                <span class="health-status-val" id="res-risk-level">Low</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right column: Detailed metrics and recommendations -->
+                    <div class="score-card" style="align-items: stretch; text-align: left; justify-content: flex-start;">
+                        <h4 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 20px;">Polarity Distribution</h4>
+                        
+                        <div>
+                            <div class="score-bar-row">
+                                <span class="score-label"><i class="fas fa-smile" style="color: #10b981; margin-right: 6px;"></i> Positive Score</span>
+                                <span class="score-percentage" id="res-pos">45%</span>
+                            </div>
+                            <div class="meter-container" style="margin-top: 0; margin-bottom: 18px; height: 6px;">
+                                <div class="meter-bar meter-positive" id="res-bar-pos" style="width: 45%;"></div>
+                            </div>
+
+                            <div class="score-bar-row">
+                                <span class="score-label"><i class="fas fa-meh" style="color: #f59e0b; margin-right: 6px;"></i> Neutral Score</span>
+                                <span class="score-percentage" id="res-neu">50%</span>
+                            </div>
+                            <div class="meter-container" style="margin-top: 0; margin-bottom: 18px; height: 6px;">
+                                <div class="meter-bar meter-neutral" id="res-bar-neu" style="width: 50%;"></div>
+                            </div>
+
+                            <div class="score-bar-row">
+                                <span class="score-label"><i class="fas fa-frown" style="color: #ef4444; margin-right: 6px;"></i> Negative Score</span>
+                                <span class="score-percentage" id="res-neg">5%</span>
+                            </div>
+                            <div class="meter-container" style="margin-top: 0; margin-bottom: 18px; height: 6px;">
+                                <div class="meter-bar meter-negative" id="res-bar-neg" style="width: 5%;"></div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; margin-top: auto;">
+                            <span style="font-size: 12px; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px;">Personalized Advice</span>
+                            <span id="res-recommendations" style="font-size: 13.5px; line-height: 1.4; color: var(--text-primary);">Keep up the positive mindset and continue with your current routine!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Card -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Sentiment & Wellness Log History
+                </h3>
+            </div>
+            
+            <div class="history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Analysis Date</th>
+                            <th>Feedback Snippet</th>
+                            <th>Sentiment</th>
+                            <th>Mental Status</th>
+                            <th>Risk Level</th>
+                            <th>Compound Score</th>
+                            <th>Report</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        {% if history %}
+                            {% for record in history %}
+                                <tr>
+                                    <td style="color: var(--text-secondary); font-family: monospace;">{{ record.analysis_date }}</td>
+                                    <td class="history-feedback-cell" title="{{ record.feedback }}">{{ record.feedback }}</td>
+                                    <td>
+                                        <span class="badge-status {{ 'badge-excellent' if record.sentiment == 'Positive' else ('badge-average' if record.sentiment == 'Neutral' else 'badge-attention') }}">
+                                            {{ record.sentiment }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if record.mental_health_status in ['Excellent', 'Good'] %}
+                                            <span style="color: #10b981; font-weight: 600;">{{ record.mental_health_status }}</span>
+                                        {% elif record.mental_health_status == 'Moderate' %}
+                                            <span style="color: #f59e0b; font-weight: 600;">{{ record.mental_health_status }}</span>
+                                        {% else %}
+                                            <span style="color: #ef4444; font-weight: 600;">{{ record.mental_health_status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge-status {{ 'badge-excellent' if record.risk_level == 'Low' else ('badge-average' if record.risk_level == 'Moderate' else 'badge-attention') }}">
+                                            {{ record.risk_level }} Risk
+                                        </span>
+                                    </td>
+                                    <td style="font-weight: 700; font-family: monospace;">
+                                        {% if record.compound_score >= 0.05 %}
+                                            <span style="color: #10b981;">+{{ "%.4f"|format(record.compound_score) }}</span>
+                                        {% elif record.compound_score <= -0.05 %}
+                                            <span style="color: #ef4444;">{{ "%.4f"|format(record.compound_score) }}</span>
+                                        {% else %}
+                                            <span style="color: #f59e0b;">{{ "%.4f"|format(record.compound_score) }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="/api/sentiment/download-pdf/{{ record.id }}" class="btn-download" title="Download PDF Report" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr id="history-empty-row">
+                                <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                                    No sentiment analysis history found. Submit your first feedback above!
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logout-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-sign-out-alt modal-icon"></i>
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-desc">Are you sure you want to logout? Any unsaved edits will be discarded.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-logout-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-logout-confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripting for live interaction -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('feedback-text');
+            const charCount = document.getElementById('char-count');
+            const form = document.getElementById('sentiment-form');
+            const btnSubmit = document.getElementById('btn-submit-sentiment');
+            const loading = document.getElementById('sentiment-loading');
+            const resultsPanel = document.getElementById('result-panel');
+            const alertBox = document.getElementById('alert-sentiment');
+            
+            // Character count tracking
+            textarea.addEventListener('input', () => {
+                charCount.textContent = textarea.value.length;
+            });
+
+            function showAlert(msg, type = 'success') {
+                alertBox.style.display = 'flex';
+                alertBox.className = `alert-box alert-${type}`;
+                alertBox.querySelector('.alert-msg').textContent = msg;
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function hideAlert() {
+                alertBox.style.display = 'none';
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                hideAlert();
+                
+                const feedbackVal = textarea.value.trim();
+                if (!feedbackVal) {
+                    showAlert('Please enter some journal text or feedback before submitting.', 'error');
+                    return;
+                }
+
+                // Show loading
+                btnSubmit.disabled = true;
+                loading.style.display = 'block';
+                resultsPanel.style.display = 'none';
+
+                try {
+                    const response = await fetch('/api/sentiment/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ feedback: feedbackVal })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'An error occurred during sentiment processing.');
+                    }
+
+                    // Render results
+                    document.getElementById('res-sentiment').textContent = data.sentiment;
+                    document.getElementById('res-sentiment').className = `sentiment-badge sentiment-${data.sentiment.toLowerCase()}`;
+                    
+                    const compStr = data.compound >= 0 ? `+${data.compound.toFixed(4)}` : data.compound.toFixed(4);
+                    document.getElementById('res-compound').textContent = compStr;
+                    
+                    // Meter percentage mapping (-1 to 1 mapped to 0% to 100%)
+                    const pct = Math.round(((data.compound + 1) / 2) * 100);
+                    const meterBar = document.getElementById('res-meter-bar');
+                    meterBar.style.width = `${pct}%`;
+                    meterBar.className = `meter-bar meter-${data.sentiment.toLowerCase()}`;
+                    
+                    // Health & risk status
+                    document.getElementById('res-health-status').textContent = data.mental_health_status;
+                    document.getElementById('res-risk-level').textContent = `${data.risk_level} Risk`;
+
+                    // Detailed scores
+                    document.getElementById('res-pos').textContent = `${Math.round(data.pos * 100)}%`;
+                    document.getElementById('res-bar-pos').style.width = `${Math.round(data.pos * 100)}%`;
+
+                    document.getElementById('res-neu').textContent = `${Math.round(data.neu * 100)}%`;
+                    document.getElementById('res-bar-neu').style.width = `${Math.round(data.neu * 100)}%`;
+
+                    document.getElementById('res-neg').textContent = `${Math.round(data.neg * 100)}%`;
+                    document.getElementById('res-bar-neg').style.width = `${Math.round(data.neg * 100)}%`;
+
+                    // Recommendations text
+                    document.getElementById('res-recommendations').textContent = data.recommendations;
+
+                    // Display results panel
+                    resultsPanel.style.display = 'block';
+                    resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                    // Clear form
+                    textarea.value = '';
+                    charCount.textContent = '0';
+
+                    // Re-load / refresh history list
+                    refreshHistory();
+                    showAlert('Sentiment analysis completed and logged successfully!', 'success');
+
+                } catch (err) {
+                    console.error(err);
+                    showAlert(err.message || 'Server error. Please try again later.', 'error');
+                } finally {
+                    btnSubmit.disabled = false;
+                    loading.style.display = 'none';
+                }
+            });
+
+            async function refreshHistory() {
+                try {
+                    const r = await fetch('/api/sentiment/history');
+                    const data = await r.json();
+                    if (data.success && data.history) {
+                        const tbody = document.getElementById('history-tbody');
+                        tbody.innerHTML = '';
+                        
+                        if (data.history.length === 0) {
+                            tbody.innerHTML = `
+                                <tr id="history-empty-row">
+                                    <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                                        No sentiment analysis history found. Submit your first feedback above!
+                                    </td>
+                                </tr>
+                            `;
+                            return;
+                        }
+
+                        data.history.forEach(record => {
+                            const dateCell = `<td style="color: var(--text-secondary); font-family: monospace;">${record.analysis_date}</td>`;
+                            const fbCell = `<td class="history-feedback-cell" title="${escapeHtml(record.feedback)}">${escapeHtml(record.feedback)}</td>`;
+                            
+                            const sentClass = record.sentiment === 'Positive' ? 'badge-excellent' : (record.sentiment === 'Neutral' ? 'badge-average' : 'badge-attention');
+                            const sentCell = `<td><span class="badge-status ${sentClass}">${record.sentiment}</span></td>`;
+                            
+                            let mentalColor = '#10b981';
+                            if (record.mental_health_status === 'Moderate') mentalColor = '#f59e0b';
+                            else if (['At Risk', 'Critical'].includes(record.mental_health_status)) mentalColor = '#ef4444';
+                            const mentalCell = `<td><span style="color: ${mentalColor}; font-weight: 600;">${record.mental_health_status}</span></td>`;
+                            
+                            const riskClass = record.risk_level === 'Low' ? 'badge-excellent' : (record.risk_level === 'Moderate' ? 'badge-average' : 'badge-attention');
+                            const riskCell = `<td><span class="badge-status ${riskClass}">${record.risk_level} Risk</span></td>`;
+                            
+                            const val = record.compound_score;
+                            const scoreText = val >= 0.05 ? `+${val.toFixed(4)}` : val.toFixed(4);
+                            const scoreColor = val >= 0.05 ? '#10b981' : (val <= -0.05 ? '#ef4444' : '#f59e0b');
+                            const scoreCell = `<td style="font-weight: 700; font-family: monospace; color: ${scoreColor}">${scoreText}</td>`;
+
+                            const reportCell = `
+                                <td>
+                                    <a href="/api/sentiment/download-pdf/${record.id}" class="btn-download" title="Download PDF Report" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </a>
+                                </td>
+                            `;
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = dateCell + fbCell + sentCell + mentalCell + riskCell + scoreCell + reportCell;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                } catch (e) {
+                    console.error("Failed to refresh sentiment history list:", e);
+                }
+            }
+
+            function escapeHtml(str) {
+                return str
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>
+</body>
+</html>

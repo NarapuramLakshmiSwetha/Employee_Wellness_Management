@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Wellness Recommendations</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .rec-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s ease;
+        }
+        .rec-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 15px 35px rgba(6, 182, 212, 0.15);
+        }
+        .rec-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .rec-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #ffffff;
+        }
+        .priority-tag {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .priority-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .priority-medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .priority-low { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+
+        .rec-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .rec-desc {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        .rec-benefit-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 12px;
+        }
+        .rec-benefit-label {
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .rec-benefit-text {
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body id="dashboard-view">
+    <!-- Sliding Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile" style="align-items: center;">
+                <div class="logo-icon" style="width: 32px; height: 32px; font-size: 14px; margin-bottom: 0; border-radius: 8px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 16px; color: #fff; margin-left: 10px;">Wellness Hub</span>
+            </div>
+            <button class="sidebar-close" id="btn-sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                {% if profile_photo %}
+                    <img src="{{ profile_photo }}" alt="Avatar">
+                {% else %}
+                    {{ username[0].upper() if username else 'U' }}
+                {% endif %}
+            </div>
+            <h4 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px;">{{ username }}</h4>
+            <p style="font-size: 12px; color: var(--primary); font-weight: 600;">Employee Profile</p>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="/dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/security">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Security</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a id="btn-sidebar-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Floating Background Lighting Blobs -->
+    <div class="bg-bubbles">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Dashboard Content Wrapper -->
+    <div class="dashboard-wrapper" style="max-width: 1100px; margin: 0 auto; width: 100%; padding: 40px 20px;">
+        <!-- Header Nav Bar -->
+        <header class="dash-header glass-card" style="padding: 15px 30px; border-radius: 16px; margin-bottom: 40px;">
+            <div class="user-profile">
+                <button class="btn-hamburger" id="btn-sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo-icon" style="width: 40px; height: 40px; font-size: 16px; margin-bottom: 0; border-radius: 10px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="user-info">
+                    <h1 class="project-title" style="font-size: 16px; margin-bottom: 0;">Employee Wellness</h1>
+                    <p class="project-subtitle" style="font-size: 10px; letter-spacing: 1px;">Analytics Hub</p>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center;">
+                    {% if profile_photo %}
+                        <img src="{{ profile_photo }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        {{ username[0].upper() if username else 'U' }}
+                    {% endif %}
+                </div>
+                <div class="user-info" style="text-align: left; margin-right: 15px;">
+                    <h4>Welcome, {{ username }}</h4>
+                    <p style="color: var(--primary);">Employee Profile</p>
+                </div>
+                <button onclick="window.location.href='/risk-prediction'" class="btn-logout" style="background: rgba(255,255,255,0.05); color: #fff; margin-right: 10px; border-color: rgba(255,255,255,0.1);">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Prediction Engine</span>
+                </button>
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Section Title -->
+        <div style="margin-bottom: 40px; text-align: left; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h2 style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Personalized Wellness Recommendations</h2>
+                <p style="color: var(--text-secondary); font-size: 15px; margin-top: 5px;">Customized therapeutic strategies, nutritional guide, and mobility habits compiled based on your health metrics.</p>
+            </div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--text-secondary);">
+                Risk Profile: 
+                {% if risk_level == 'Low Risk' %}
+                    <span class="badge-status badge-excellent">Low Risk</span>
+                {% elif risk_level == 'Moderate Risk' %}
+                    <span class="badge-status badge-average">Moderate Risk</span>
+                {% else %}
+                    <span class="badge-status badge-attention">High Risk</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Global Alert Info Box -->
+        <div class="alert-box" id="alert-recommendations" style="margin-bottom: 30px; display: none;">
+            <i class="fas fa-info-circle alert-icon"></i>
+            <span class="alert-msg"></span>
+        </div>
+
+        <!-- Recommendation Grid -->
+        <div class="recommendation-grid">
+            {% if recommendations %}
+                {% for rec in recommendations %}
+                    <div class="rec-card">
+                        <div>
+                            <div class="rec-header">
+                                <div class="rec-icon-box" style="background: {{ rec.icon_bg }};">
+                                    <i class="fas {{ rec.icon }}"></i>
+                                </div>
+                                <span class="priority-tag {{ 'priority-high' if rec.priority == 'High' else ('priority-medium' if rec.priority == 'Medium' else 'priority-low') }}">
+                                    {{ rec.priority }} Priority
+                                </span>
+                            </div>
+                            
+                            <h3 class="rec-title">{{ rec.title }}</h3>
+                            <p class="rec-desc">{{ rec.description }}</p>
+                        </div>
+                        
+                        <div class="rec-benefit-box">
+                            <span class="rec-benefit-label">Expected Health Benefit</span>
+                            <span class="rec-benefit-text">{{ rec.benefit }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+                    <i class="fas fa-circle-check" style="font-size: 48px; color: var(--primary); margin-bottom: 20px;"></i>
+                    <h3 style="font-size: 20px; font-weight: 700; color: #fff;">No Critical Recommendations</h3>
+                    <p style="color: var(--text-secondary); margin-top: 8px;">Your wellness scores are perfectly balanced! Check back after your next physical exam.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recommended Health Videos Section -->
+        <div id="recommended-health-videos-container"></div>
+
+        <!-- Action Footer -->
+        <div style="margin-top: 40px; margin-bottom: 50px; display: flex; justify-content: flex-end; gap: 20px; flex-wrap: wrap;">
+            <button onclick="saveRecommendations()" class="btn-action btn-action-save" id="btn-save-recommendations" style="padding: 15px 40px; font-size: 15px; border-radius: 14px;">
+                <i class="fas fa-cloud-arrow-up"></i>
+                <span>Save</span>
+            </button>
+            <button onclick="window.location.href='/api/download-health-report'" class="btn-action btn-action-save" id="btn-download-pdf" style="padding: 15px 40px; font-size: 15px; border-radius: 14px; background: linear-gradient(135deg, #ef4444 0%, var(--accent) 100%); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);">
+                <i class="fas fa-file-pdf"></i>
+                <span>Download PDF</span>
+            </button>
+            <button onclick="window.location.href='/dashboard'" class="btn-action btn-action-next" style="padding: 15px 40px; font-size: 15px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: none;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Go Back to Dashboard</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function saveRecommendations() {
+            const alertBox = document.getElementById('alert-recommendations');
+            alertBox.style.display = 'flex';
+            alertBox.className = 'alert-box alert-success';
+            alertBox.querySelector('.alert-msg').textContent = 'Wellness recommendations plan saved to profile successfully!';
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logout-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-sign-out-alt modal-icon"></i>
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-desc">Are you sure you want to logout? Any unsaved edits will be discarded.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-logout-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-logout-confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/health_videos.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const resp = await fetch('/api/health-data');
+                const data = await resp.json();
+                renderHealthVideosSection('recommended-health-videos-container', {
+                    autoFilterProfile: true,
+                    healthData: data.data || {}
+                });
+            } catch (e) {
+                renderHealthVideosSection('recommended-health-videos-container', { autoFilterProfile: false });
+            }
+        });
+    </script>
+</body>
+</html>

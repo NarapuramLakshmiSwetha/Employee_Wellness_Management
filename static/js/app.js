@@ -54,41 +54,26 @@ function initAuth() {
 
     let lockoutInterval = null;
 
-    // Tab Switching
-    if (tabLogin && tabRegister && tabAdmin) {
-        tabLogin.addEventListener('click', () => {
-            tabLogin.classList.add('active');
-            tabRegister.classList.remove('active');
-            tabAdmin.classList.remove('active');
-            panelLogin.classList.add('active');
-            panelRegister.classList.remove('active');
-            panelAdmin.classList.remove('active');
-            if (panelForgot) panelForgot.classList.remove('active');
-            clearAlerts();
-        });
+    // Robust Tab & Panel Switching
+    function switchTab(target) {
+        if (tabLogin) tabLogin.classList.toggle('active', target === 'login');
+        if (tabRegister) tabRegister.classList.toggle('active', target === 'register');
+        if (tabAdmin) tabAdmin.classList.toggle('active', target === 'admin');
 
-        tabRegister.addEventListener('click', () => {
-            tabRegister.classList.add('active');
-            tabLogin.classList.remove('active');
-            tabAdmin.classList.remove('active');
-            panelRegister.classList.add('active');
-            panelLogin.classList.remove('active');
-            panelAdmin.classList.remove('active');
-            if (panelForgot) panelForgot.classList.remove('active');
-            clearAlerts();
-        });
+        if (panelLogin) panelLogin.classList.toggle('active', target === 'login');
+        if (panelRegister) panelRegister.classList.toggle('active', target === 'register');
+        if (panelAdmin) panelAdmin.classList.toggle('active', target === 'admin');
+        if (panelForgot) panelForgot.classList.remove('active');
 
-        tabAdmin.addEventListener('click', () => {
-            tabAdmin.classList.add('active');
-            tabLogin.classList.remove('active');
-            tabRegister.classList.remove('active');
-            panelAdmin.classList.add('active');
-            panelLogin.classList.remove('active');
-            panelRegister.classList.remove('active');
-            if (panelForgot) panelForgot.classList.remove('active');
-            clearAlerts();
-        });
+        const leftIll = document.getElementById('left-signup-illustration');
+        if (leftIll) leftIll.style.display = (target === 'register') ? 'block' : 'none';
+
+        clearAlerts();
     }
+
+    if (tabLogin) tabLogin.addEventListener('click', () => switchTab('login'));
+    if (tabRegister) tabRegister.addEventListener('click', () => switchTab('register'));
+    if (tabAdmin) tabAdmin.addEventListener('click', () => switchTab('admin'));
 
     // Forgot Password Panel Toggle
     if (linkForgotPassword) {

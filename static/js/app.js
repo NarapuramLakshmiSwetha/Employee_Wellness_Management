@@ -186,14 +186,21 @@ function initAuth() {
             e.preventDefault();
             clearAlerts();
 
+            const submitBtn = formLogin.querySelector('.btn-submit');
+            const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) setLoading(submitBtn, true);
+
+            // GitHub Pages Demo Mode Bypass
+            if (window.location.hostname.includes('github.io')) {
+                showAlert(alertLogin, 'success', 'Demo Mode: Login Successful! Redirecting to Dashboard...');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+                return;
+            }
+
             const username = document.getElementById('login-username').value;
             const password = document.getElementById('login-password').value;
-
-            const submitBtn = formLogin.querySelector('.btn-submit');
-            const origBtnHtml = submitBtn.innerHTML;
-
-            // Set loading spinner
-            setLoading(submitBtn, true);
 
             try {
                 const response = await fetch('/api/login', {
@@ -256,13 +263,21 @@ function initAuth() {
             e.preventDefault();
             clearAlerts();
 
+            const submitBtn = formAdmin.querySelector('.btn-submit');
+            const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) setLoading(submitBtn, true);
+
+            // GitHub Pages Demo Mode Bypass
+            if (window.location.hostname.includes('github.io')) {
+                showAlert(alertAdmin, 'success', 'Demo Mode: Admin Verification Successful! Loading Admin Portal...');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+                return;
+            }
+
             const username = document.getElementById('admin-username').value.trim();
             const password = document.getElementById('admin-password').value;
-
-            const submitBtn = formAdmin.querySelector('.btn-submit');
-            const origBtnHtml = submitBtn.innerHTML;
-
-            setLoading(submitBtn, true);
 
             try {
                 const response = await fetch('/api/login', {
@@ -405,6 +420,19 @@ function initAuth() {
         formRegister.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearAlerts();
+
+            const submitBtn = formRegister.querySelector('.btn-submit');
+            const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) setLoading(submitBtn, true);
+
+            // GitHub Pages Demo Mode Bypass
+            if (window.location.hostname.includes('github.io')) {
+                showAlert(alertRegister, 'success', 'Demo Mode: Registration Successful! Loading Dashboard...');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+                return;
+            }
 
             const username = document.getElementById('reg-username').value.trim();
             const email = document.getElementById('reg-email').value.trim();

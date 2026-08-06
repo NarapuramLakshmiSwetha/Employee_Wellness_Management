@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Wellness Assistant & Engagement</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <style>
+        .chatbot-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 25px;
+            margin-top: 20px;
+            align-items: start;
+        }
+        @media (max-width: 992px) {
+            .chatbot-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Health Tip Banner */
+        .tip-banner {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.25);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.05);
+        }
+        .tip-icon {
+            font-size: 24px;
+            color: var(--secondary);
+            animation: pulse 2s infinite;
+        }
+        .tip-content h4 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary);
+            margin: 0 0 4px 0;
+            font-weight: 700;
+        }
+        .tip-content p {
+            font-size: 15px;
+            color: #ffffff;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* High Risk Alert Banner */
+        .high-risk-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
+        }
+        .high-risk-icon {
+            font-size: 24px;
+            color: var(--danger);
+        }
+        .high-risk-content p {
+            font-size: 14.5px;
+            color: #ffd8d8;
+            margin: 0;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* Motivation & Health Score Card */
+        .motivation-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-premium);
+        }
+        .motivation-text {
+            flex: 1;
+        }
+        .motivation-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .motivation-msg {
+            font-size: 15px;
+            color: #ffffff;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .motivation-score-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 12px 18px;
+            text-align: center;
+            min-width: 110px;
+        }
+        .motivation-score-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+        }
+        .motivation-score-lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Chatbot Card */
+        .chat-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .chat-bot-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-bot-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(6, 182, 212, 0.25);
+        }
+        .chat-bot-name h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .chat-bot-name p {
+            font-size: 11px;
+            color: var(--primary);
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Voice response controls widget */
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 4px 12px;
+        }
+        .voice-controls span {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .voice-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .voice-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .voice-btn.active {
+            color: var(--secondary);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        /* Chat History Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        /* Custom scrollbar for chat messages */
+        .chat-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 14.5px;
+            line-height: 1.5;
+            position: relative;
+            animation: messageSlideIn 0.3s ease-out forwards;
+        }
+        .chat-bubble.bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #f1f5f9;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.15);
+        }
+        .chat-bubble.bot b {
+            color: var(--secondary);
+        }
+        .chat-timestamp {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            display: block;
+            text-align: right;
+        }
+        .chat-bubble.user .chat-timestamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Typing Indicator Animation */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            align-self: flex-start;
+            width: fit-content;
+        }
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Chat Input Form */
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 15px;
+        }
+        .chat-input-container {
+            position: relative;
+            flex: 1;
+        }
+        .chat-input {
+            width: 100%;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 0 50px 0 18px;
+            color: #ffffff;
+            font-size: 14.5px;
+            transition: all 0.25s ease;
+        }
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
+        }
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+        .btn-mic {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-mic:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .btn-mic.listening {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.15);
+            animation: micPulse 1.5s infinite;
+        }
+        .btn-chat-send {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(6, 182, 212, 0.2);
+        }
+        .btn-chat-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Sidebar Panels */
+        .panel-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin-bottom: 25px;
+        }
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-title i {
+            color: var(--secondary);
+        }
+
+        /* Smart Reminder Cards */
+        .reminder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .reminder-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+        .reminder-card:hover {
+            border-color: rgba(6, 182, 212, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateX(3px);
+        }
+        .reminder-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .reminder-info {
+            flex: 1;
+        }
+        .reminder-info h4 {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 3px 0;
+        }
+        .reminder-info p {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Summary Button & Card */
+        .btn-summary {
+            width: 100%;
+            height: 48px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            margin-bottom: 20px;
+        }
+        .btn-summary:hover {
+            background: rgba(6, 182, 212, 0.08);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .summary-details-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            border-radius: 20px;
+            padding: 22px;
+            animation: fadeIn 0.4s ease-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 13px;
+            gap: 10px;
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        .summary-lbl {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .summary-val {
+            color: #ffffff;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        /* Animations */
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        @keyframes micPulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Custom styles for Reminders & Notification Panel */
+        .noti-dropdown::-webkit-scrollbar {
+            width: 4px;
+        }
+        .noti-dropdown::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .noti-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+        .noti-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(6, 182, 212, 0.2);
+        }
+        .noti-item-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .noti-item-content {
+            flex: 1;
+        }
+        .noti-item-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 2px 0;
+        }
+        .noti-item-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        .noti-item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .noti-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 11px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .noti-action-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .personal-rem-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        .personal-rem-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(6, 182, 212, 0.2);
+            transform: translateX(2px);
+        }
+        .personal-rem-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .personal-rem-info p {
+            font-size: 10.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .personal-rem-status-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .personal-rem-status-badge.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+        .personal-rem-status-badge.snoozed {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+        }
+        .personal-rem-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .personal-rem-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .personal-rem-btn:hover {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+        .personal-rem-btn.delete-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body id="dashboard-view">
+    <!-- Sliding Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile" style="align-items: center;">
+                <div class="logo-icon" style="width: 32px; height: 32px; font-size: 14px; margin-bottom: 0; border-radius: 8px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 16px; color: #fff; margin-left: 10px;">Wellness Hub</span>
+            </div>
+            <button class="sidebar-close" id="btn-sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                {% if profile_photo %}
+                    <img src="static/uploads/profile_Lakshmi Swetha_photo.jpg" alt="Avatar">
+                {% else %}
+                    {{ username[0].upper() if username else 'U' }}
+                {% endif %}
+            </div>
+            <h4 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px;">Lakshmi Swetha</h4>
+            <p style="font-size: 12px; color: var(--primary); font-weight: 600;">Employee Profile</p>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="dashboard.html">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="profile.html">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="security.html">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Security</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a id="btn-sidebar-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Floating Background Lighting Blobs -->
+    <div class="bg-bubbles">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Dashboard Content Wrapper -->
+    <div class="dashboard-wrapper" style="max-width: 1200px; margin: 0 auto; width: 100%; padding: 40px 20px;">
+        <!-- Header Nav Bar -->
+        <header class="dash-header glass-card" style="padding: 15px 30px; border-radius: 16px; margin-bottom: 30px;">
+            <div class="user-profile">
+                <button class="btn-hamburger" id="btn-sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo-icon" style="width: 40px; height: 40px; font-size: 16px; margin-bottom: 0; border-radius: 10px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="user-info">
+                    <h1 class="project-title" style="font-size: 16px; margin-bottom: 0;">Employee Wellness</h1>
+                    <p class="project-subtitle" style="font-size: 10px; letter-spacing: 1px;">AI Assistant Hub</p>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <!-- Notification Bell and Dropdown Panel -->
+                <div style="position: relative; margin-right: 15px;">
+                    <button id="btn-noti-toggle" class="btn-logout" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; position: relative;">
+                        <i class="fas fa-bell" style="font-size: 16px; color: var(--text-secondary);"></i>
+                        <span id="noti-badge" style="display: none; position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; background-color: var(--danger); border-radius: 50%; color: #fff; font-size: 9px; font-weight: 700; align-items: center; justify-content: center;">0</span>
+                    </button>
+                    <!-- Notification Dropdown Panel (Glassmorphism) -->
+                    <div class="noti-dropdown" id="noti-dropdown" style="display: none; position: absolute; right: 0; top: 50px; width: 320px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: var(--shadow-premium); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 100; padding: 15px; max-height: 400px; overflow-y: auto;">
+                        <h4 style="font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+                            <span>🔔 Notifications</span>
+                            <span id="noti-count" style="font-size: 10px; color: var(--secondary);">0 pending</span>
+                        </h4>
+                        <div id="noti-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="text-align: center; color: var(--text-secondary); padding: 15px; font-size: 12px;">No notifications yet</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avatar" style="overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center;">
+                    {% if profile_photo %}
+                        <img src="static/uploads/profile_Lakshmi Swetha_photo.jpg" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        {{ username[0].upper() if username else 'U' }}
+                    {% endif %}
+                </div>
+                <div class="user-info" style="text-align: left; margin-right: 15px;">
+                    <h4>Welcome, Lakshmi Swetha</h4>
+                    <p style="color: var(--primary);">Wellness Specialist</p>
+                </div>
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Daily Health Tip Banner -->
+        <div class="tip-banner" id="tip-banner">
+            <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
+            <div class="tip-content">
+                <h4>Daily Health Tip</h4>
+                <p id="tip-text">Loading daily wellness advice...</p>
+            </div>
+        </div>
+
+        <!-- Dynamic High Risk Alert Banner (Hidden by default) -->
+        <div class="high-risk-banner" id="high-risk-banner" style="display: none;">
+            <div class="high-risk-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="high-risk-content">
+                <p>⚠️ Your wellness assessment indicates a High Risk level. Please follow your doctor's advice and schedule a health check-up as soon as possible.</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Motivation & Health Score Card -->
+        <div class="motivation-card">
+            <div class="motivation-text">
+                <div class="motivation-title">Personalized Motivational Message</div>
+                <p class="motivation-msg" id="motivation-text">Completing health data generates your motivational advice.</p>
+            </div>
+            <div class="motivation-score-badge">
+                <div class="motivation-score-val" id="score-val">--</div>
+                <div class="motivation-score-lbl">Health Score</div>
+            </div>
+        </div>
+
+        <!-- Chatbot Interface Split Grid -->
+        <div class="chatbot-container">
+            <!-- Left Grid: Chatbot Core Window -->
+            <div class="chat-card">
+                <div class="chat-header">
+                    <div class="chat-bot-identity">
+                        <div class="chat-bot-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-bot-name">
+                            <h3>AI Wellness Assistant</h3>
+                            <p><span class="status-dot"></span> Active & Online</p>
+                        </div>
+                    </div>
+                    <!-- Audio read aloud controls -->
+                    <div class="voice-controls">
+                        <span>AI voice:</span>
+                        <button class="voice-btn" id="btn-voice-play" title="Play response aloud"><i class="fas fa-play"></i></button>
+                        <button class="voice-btn" id="btn-voice-pause" title="Pause response"><i class="fas fa-pause"></i></button>
+                        <button class="voice-btn" id="btn-voice-resume" title="Resume voice"><i class="fas fa-play-circle"></i></button>
+                        <button class="voice-btn" id="btn-voice-stop" title="Stop speech synthesis"><i class="fas fa-stop"></i></button>
+                    </div>
+                </div>
+
+                <!-- Chat history messages log -->
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-bubble bot">
+                        👋 Hello! I'm your AI Wellness Assistant. I can help you understand your health data, wellness risk prediction, personalized recommendations, health reports, and upcoming health check-ups. You can also ask me using your voice. How can I assist you today?
+                        <span class="chat-timestamp" id="welcome-timestamp">12:00 PM</span>
+                    </div>
+                </div>
+
+                <!-- Typing indicator animation container -->
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+
+                <!-- Chat Input Form -->
+                <form class="chat-input-form" id="chat-input-form">
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="Type a wellness question (e.g. 'What is my BMI?')..." autocomplete="off" required>
+                        <button type="button" class="btn-mic" id="btn-mic" title="Speak to assistant (Voice recognition)">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="btn-chat-send" id="btn-chat-send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Grid: Reminders, Health Summary, Audit -->
+            <div>
+                <!-- Action bar: health summary toggle -->
+                <button class="btn-summary" id="btn-toggle-summary">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Summarize My Health</span>
+                </button>
+
+                <!-- Collapsible Health Summary details card -->
+                <div class="summary-details-card" id="summary-details-card" style="display: none; margin-bottom: 25px;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-clipboard-check" style="color: var(--secondary);"></i> My Health Summary
+                    </h3>
+                    <div class="summary-item"><span class="summary-lbl">Employee Name:</span> <span class="summary-val" id="sum-name">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">BMI:</span> <span class="summary-val" id="sum-bmi">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Blood Pressure:</span> <span class="summary-val" id="sum-bp">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Blood Sugar:</span> <span class="summary-val" id="sum-sugar">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Heart Rate:</span> <span class="summary-val" id="sum-heart">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Stress Level:</span> <span class="summary-val" id="sum-stress">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Attendance:</span> <span class="summary-val" id="sum-attendance">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Health Score:</span> <span class="summary-val" id="sum-score">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Risk Prediction:</span> <span class="summary-val" id="sum-risk">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Doctor Remarks:</span> <span class="summary-val" id="sum-remarks">--</span></div>
+                    <div class="summary-item"><span class="summary-lbl">Next Check-up Date:</span> <span class="summary-val" id="sum-next-check">--</span></div>
+                    <div class="summary-item" style="flex-direction: column; align-items: flex-start; gap: 4px; border-bottom: none;">
+                        <span class="summary-lbl">Recommendations Summary:</span> 
+                        <span class="summary-val" id="sum-recs" style="text-align: left; font-size: 12px; margin-top: 4px; font-weight: normal; color: var(--text-secondary);">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Reminders & Goals Card -->
+                <div class="panel-card">
+                    <h3 class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fas fa-clock"></i> Reminders & Goals</span>
+                    </h3>
+                    
+                    <h4 style="font-size: 12px; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px 0; font-weight: 700;">Smart Goals</h4>
+                    <div class="reminder-list" id="smart-reminder-list" style="margin-bottom: 20px;">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 15px; font-size: 12px;">
+                            <i class="fas fa-spinner fa-spin" style="margin-bottom: 8px; font-size: 18px; display: block; color: var(--secondary);"></i>
+                            Generating smart recommendations...
+                        </div>
+                    </div>
+                    
+                    <h4 style="font-size: 12px; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px; margin: 15px 0 10px 0; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Personal Reminders</span>
+                        <span id="personal-reminder-count" style="font-size: 10px; text-transform: none; color: var(--text-secondary); font-weight: 500;">0 pending</span>
+                    </h4>
+                    <div class="reminder-list" id="personal-reminder-list">
+                        <div style="text-align: center; color: var(--text-secondary); padding: 15px; font-size: 12px;">
+                            No personal reminders set. Try typing e.g., "Remind me to take my tablet at 8 AM" in the chat!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Go Back Navigation footer -->
+        <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+            <button onclick="window.location.href="dashboard.html"" class="btn-action btn-action-next" style="padding: 12px 30px; font-size: 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); color: #fff; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: none;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Go Back to Dashboard</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Reminder Notification Popup Modal -->
+    <div class="modal-overlay" id="reminder-modal-overlay" style="display: none; z-index: 1100;">
+        <div class="confirm-modal" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(6, 182, 212, 0.25); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);">
+            <div style="font-size: 40px; color: var(--secondary); margin-bottom: 15px; text-align: center;">
+                <i class="fas fa-bell animate-bounce"></i>
+            </div>
+            <h3 class="modal-title" style="color: #ffffff; font-size: 18px; font-weight: 700; margin-bottom: 8px; text-align: center;">⏰ Reminder</h3>
+            <p class="modal-desc" id="reminder-modal-text" style="color: #f1f5f9; font-size: 14.5px; font-weight: 500; margin-bottom: 20px; line-height: 1.5; text-align: center;"></p>
+            <div class="modal-actions" style="display: flex; gap: 10px; width: 100%;">
+                <button class="btn-modal btn-modal-confirm" id="btn-reminder-done" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);">Mark as Done ✅</button>
+                <button class="btn-modal btn-modal-cancel" id="btn-reminder-snooze" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);">Snooze 10 Minutes ⏳</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logout-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-sign-out-alt modal-icon"></i>
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-desc">Are you sure you want to logout? Any unsaved edits will be discarded.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-logout-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-logout-confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend scripts -->
+    <script src="static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            const timeStr = hours + ':' + minutes + ' ' + ampm;
+
+            const localHour = now.getHours();
+            let greetingEmoji = "🌅";
+            let greetingText = "Good Morning";
+            if (localHour >= 12 && localHour < 17) {
+                greetingEmoji = "☀️";
+                greetingText = "Good Afternoon";
+            } else if (localHour >= 17 && localHour < 21) {
+                greetingEmoji = "🌇";
+                greetingText = "Good Evening";
+            } else if (localHour >= 21 || localHour < 5) {
+                greetingEmoji = "🌙";
+                greetingText = "Good Night";
+            }
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            
+            const welcomeBubble = document.createElement('div');
+            welcomeBubble.className = 'chat-bubble bot';
+            
+            const header = document.createElement('div');
+            header.className = 'chat-bubble-header';
+            header.style.fontWeight = '700';
+            header.style.fontSize = '12px';
+            header.style.marginBottom = '6px';
+            header.style.display = 'flex';
+            header.style.alignItems = 'center';
+            header.style.gap = '5px';
+            header.style.opacity = '0.9';
+            header.innerHTML = `🤖 AI Wellness Assistant (${timeStr})`;
+            
+            const body = document.createElement('div');
+            body.className = 'chat-bubble-body';
+            const welcomeMsg = `${greetingEmoji} ${greetingText}, Lakshmi Swetha! 😊<br>How can I help you today?`;
+            body.innerHTML = welcomeMsg;
+            
+            welcomeBubble.appendChild(header);
+            welcomeBubble.appendChild(body);
+            chatMessages.appendChild(welcomeBubble);
+
+            setTimeout(() => {
+                speakText(`${greetingText}, Lakshmi Swetha! How can I help you today?`);
+            }, 500);
+
+            const healthTips = [
+                "Drink at least 2 litres of water today.",
+                "Walk 8,000–10,000 steps today.",
+                "Exercise for 30 minutes.",
+                "Sleep for 7–8 hours.",
+                "Eat more fruits and vegetables.",
+                "Reduce stress with meditation."
+            ];
+            const randomTip = healthTips[Math.floor(Math.random() * healthTips.length)];
+            document.getElementById('tip-text').textContent = randomTip;
+
+            let employeeData = null;
+            let currentScore = 0;
+            let currentRiskCategory = "Low Risk";
+            let lastChatReplyText = "";
+            let activeDueReminder = null;
+            let checkDueInterval = null;
+
+            async function initializeModule() {
+                try {
+                    const hdResp = await fetch('/api/health-data');
+                    const hdData = await hdResp.json();
+                    const hsResp = await fetch('/api/health-score');
+                    const hsData = await hsResp.json();
+
+                    if (hsData.success) {
+                        currentScore = hsData.health_score;
+                        document.getElementById('score-val').textContent = currentScore;
+                    }
+
+                    if (hdData.success && hdData.exists) {
+                        employeeData = hdData.data;
+                        const bmiVal = parseFloat(employeeData.bmi || 0);
+                        const bmiCat = employeeData.bmi_category || 'Normal';
+                        const bpStr = employeeData.blood_pressure || '120/80';
+                        const waterIntake = employeeData.water_intake || '';
+                        const stressLvl = employeeData.stress_level || '';
+                        const sugarLvl = employeeData.sugar_level || 'Normal';
+                        const exerciseFreq = employeeData.exercise_frequency || '';
+                        
+                        let systolic = 120, diastolic = 80;
+                        try {
+                            const bpParts = bpStr.split('/');
+                            systolic = parseInt(bpParts[0]);
+                            diastolic = parseInt(bpParts[1]);
+                        } catch(e) {}
+
+                        let bmiScore = bmiCat === 'Normal' ? 15 : (['Overweight','Underweight'].includes(bmiCat) ? 10 : 4);
+                        let bpScore = (systolic <= 120 && diastolic <= 80) ? 15 : (systolic <= 130 && diastolic <= 85) ? 11 : (systolic <= 140 || diastolic <= 90) ? 7 : 3;
+                        let waterScore = ['3 Litres','3.5 Litres','4 Litres','2.5 Litres'].includes(waterIntake) ? 10 : 7;
+                        
+                        let medicalPoints = 15;
+                        if (employeeData.medical_condition && employeeData.medical_condition !== 'None') medicalPoints -= 5;
+                        if (['Pre-diabetic','Diabetic','Low'].includes(sugarLvl)) medicalPoints -= 3;
+                        
+                        let lifestylePoints = 12;
+                        if (employeeData.smoking_habit === 'Regular') lifestylePoints -= 5;
+                        
+                        let exercisePoints = 0;
+                        if (exerciseFreq === 'Daily') exercisePoints += 5;
+                        
+                        let stressWorkPoints = 10;
+                        if (stressLvl === 'Very High') stressWorkPoints -= 4;
+
+                        const wellnessScoreTotal = Math.min(100, Math.max(0, parseInt(bmiScore + bpScore + waterScore + medicalPoints + lifestylePoints + exercisePoints + stressWorkPoints)));
+                        
+                        if (wellnessScoreTotal >= 80) currentRiskCategory = "Low Risk";
+                        else if (wellnessScoreTotal >= 50) currentRiskCategory = "Moderate Risk";
+                        else currentRiskCategory = "High Risk";
+
+                        if (currentRiskCategory === "High Risk") document.getElementById('high-risk-banner').style.display = 'flex';
+
+                        let motivMsg = currentRiskCategory === "Low Risk" ? "Great job! Keep maintaining your healthy lifestyle." : "Your health assessment indicates a High Risk level. Please follow your personalized recommendations.";
+                        document.getElementById('motivation-text').textContent = motivMsg;
+
+                        generateSmartReminders(employeeData, currentRiskCategory);
+
+                        // Populate Collapsible Health Summary details card
+                        document.getElementById('sum-name').textContent = "Lakshmi Swetha";
+                        document.getElementById('sum-bmi').textContent = bmiVal.toFixed(1) + " (" + bmiCat + ")";
+                        document.getElementById('sum-bp').textContent = bpStr + " mmHg";
+                        document.getElementById('sum-sugar').textContent = sugarLvl || "Normal";
+                        document.getElementById('sum-heart').textContent = (employeeData.heart_rate || "Not recorded") + " bpm";
+                        document.getElementById('sum-stress').textContent = stressLvl || "Not specified";
+                        document.getElementById('sum-attendance').textContent = parseFloat(employeeData.attendance_percentage || 0).toFixed(1) + "%";
+                        document.getElementById('sum-score').textContent = currentScore + "/100";
+                        document.getElementById('sum-risk').textContent = currentRiskCategory;
+                        document.getElementById('sum-remarks').textContent = employeeData.doctor_remarks || "None";
+                        document.getElementById('sum-next-check').textContent = employeeData.next_checkup || "Not scheduled";
+
+                        // Build recommendations summary text in Javascript:
+                        let recs = [];
+                        if (bmiCat === 'Obese' || bmiCat === 'Overweight') {
+                            recs.push("🏃 Exercise 30-45 mins daily to manage weight.");
+                        }
+                        if (bmiCat === 'Underweight') {
+                            recs.push("🍽️ Increase calorie intake with nutrient-dense foods.");
+                        }
+                        // Use the previously declared 'systolic' variable
+                        if (systolic > 130) {
+                            recs.push("🧘 Reduce sodium intake and manage stress for BP control.");
+                        }
+                        if (sugarLvl === 'Diabetic' || sugarLvl === 'Pre-diabetic') {
+                            recs.push("🍬 Limit sugar and refined carbs. Monitor glucose.");
+                        }
+                        if (employeeData.smoking_habit === 'Regular') {
+                            recs.push("🚭 Consider a smoking cessation program.");
+                        }
+                        if (employeeData.alcohol_consumption === 'Heavy' || employeeData.alcohol_consumption === 'Regular') {
+                            recs.push("🍷 Reduce alcohol consumption.");
+                        }
+                        if (stressLvl === 'High' || stressLvl === 'Very High') {
+                            recs.push("🧘 Practice meditation or yoga daily.");
+                        }
+                        if (employeeData.water_intake === 'Less than 2 Litres') {
+                            recs.push("💧 Drink at least 2-3 litres of water daily.");
+                        }
+                        if (employeeData.doctor_remarks) {
+                            recs.push("👨‍⚕️ Follow doctor's remarks: " + employeeData.doctor_remarks);
+                        }
+                        if (recs.length === 0) {
+                            recs.push("✅ Keep maintaining your healthy lifestyle!");
+                        }
+                        document.getElementById('sum-recs').innerHTML = recs.join('<br>');
+                    } else {
+                        document.getElementById('motivation-text').textContent = "Please fill out your biometric health profile data.";
+                        document.getElementById('smart-reminder-list').innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 10px; font-size: 12px;">Complete your health biometrics to enable smart reminders.</div>`;
+                        
+                        // Set placeholder values
+                        document.getElementById('sum-name').textContent = "Lakshmi Swetha";
+                        document.getElementById('sum-bmi').textContent = "Please fill health data";
+                        document.getElementById('sum-bp').textContent = "Please fill health data";
+                        document.getElementById('sum-sugar').textContent = "Please fill health data";
+                        document.getElementById('sum-heart').textContent = "Please fill health data";
+                        document.getElementById('sum-stress').textContent = "Please fill health data";
+                        document.getElementById('sum-attendance').textContent = "Please fill health data";
+                        document.getElementById('sum-score').textContent = "0/100";
+                        document.getElementById('sum-risk').textContent = "Unknown";
+                        document.getElementById('sum-remarks').textContent = "None";
+                        document.getElementById('sum-next-check').textContent = "Not scheduled";
+                        document.getElementById('sum-recs').innerHTML = "Please complete your health profile from the dashboard to view personalized recommendations.";
+                    }
+                } catch(e) { console.error("Initialization error", e); }
+            }
+
+            function generateSmartReminders(hd, riskCat) {
+                const list = document.getElementById('smart-reminder-list');
+                list.innerHTML = "";
+                const reminders = [];
+                if (hd.next_checkup) reminders.push({title: "Upcoming Health Check-up", desc: `Scheduled for ${hd.next_checkup}`, icon: "fa-calendar-check", bg: "rgba(6, 182, 212, 0.15)", color: "var(--secondary)"});
+                if (hd.water_intake === 'Less than 2 Litres') reminders.push({title: "Drink More Water", desc: "Target 2-3L.", icon: "fa-droplet", bg: "rgba(59, 130, 246, 0.15)", color: "#3b82f6"});
+                if (riskCat === 'High Risk') reminders.push({title: "Follow Doctor's Advice", desc: "Carefully adhere to recommended treatments.", icon: "fa-user-doctor", bg: "rgba(239, 68, 68, 0.15)", color: "var(--danger)"});
+
+                reminders.forEach(r => {
+                    const card = document.createElement('div');
+                    card.className = 'reminder-card';
+                    card.style.padding = '10px 12px';
+                    card.innerHTML = `<div class="reminder-icon" style="background: ${r.bg}; color: ${r.color}; width: 30px; height: 30px; font-size: 13px;"><i class="fas ${r.icon}"></i></div><div class="reminder-info"><h4 style="font-size: 12.5px;">${r.title}</h4><p style="font-size: 10.5px;">${r.desc}</p></div>`;
+                    list.appendChild(card);
+                });
+            }
+
+            async function fetchPersonalReminders() {
+                try {
+                    const response = await fetch('/api/reminders');
+                    const res = await response.json();
+                    const personalList = document.getElementById('personal-reminder-list');
+                    if (res.success) {
+                        personalList.innerHTML = "";
+                        res.reminders.forEach(r => {
+                            const card = document.createElement('div');
+                            card.className = 'personal-rem-card';
+                            card.innerHTML = `<div class="personal-rem-info"><h4>⏰ ${r.title}</h4><p>${r.reminder_time} | ${r.reminder_date}</p></div><div class="personal-rem-actions"><button class="personal-rem-btn done-btn" data-id="${r.id}">Done ✅</button></div>`;
+                            personalList.appendChild(card);
+                        });
+                        attachButtonListeners();
+                    }
+                } catch(e) { console.error(e); }
+            }
+
+            function attachButtonListeners() {
+                document.querySelectorAll('.done-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = btn.getAttribute('data-id');
+                        await handleReminderAction(id, 'done');
+                    });
+                });
+            }
+
+            async function handleReminderAction(id, action) {
+                try {
+                    const response = await fetch(`/api/reminders/${id}/action`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: action }) });
+                    if ((await response.json()).success) fetchPersonalReminders();
+                } catch(e) { console.error(e); }
+            }
+
+            async function checkDueReminders() {
+                if (document.getElementById('reminder-modal-overlay').style.display === 'flex') return;
+                try {
+                    const res = await (await fetch('/api/reminders/due')).json();
+                    if (res.success && res.due_reminders.length > 0) showReminderModal(res.due_reminders[0]);
+                } catch(e) { console.error(e); }
+            }
+
+            function showReminderModal(reminder) {
+                activeDueReminder = reminder;
+                document.getElementById('reminder-modal-text').innerHTML = `💊 It's time to: <b>${reminder.title}</b>`;
+                document.getElementById('reminder-modal-overlay').style.display = 'flex';
+                speakText(`Attention! It's time to ${reminder.title}.`);
+            }
+
+            document.getElementById('btn-reminder-done').addEventListener('click', () => { if (activeDueReminder) handleReminderAction(activeDueReminder.id, 'done'); document.getElementById('reminder-modal-overlay').style.display = 'none'; });
+            checkDueInterval = setInterval(checkDueReminders, 5000);
+            initializeModule();
+            fetchPersonalReminders();
+
+            const summaryBtn = document.getElementById('btn-toggle-summary');
+            const summaryCard = document.getElementById('summary-details-card');
+            summaryBtn.addEventListener('click', () => { summaryCard.style.display = (summaryCard.style.display === 'none') ? 'block' : 'none'; });
+
+            const chatForm = document.getElementById('chat-input-form');
+            const chatInput = document.getElementById('chat-input');
+            const typingIndicator = document.getElementById('typing-indicator');
+
+            // Play Video inside chat message
+            window.playChatVideo = function(videoId) {
+                const wrapper = document.getElementById(`chat-vwrap-${videoId}`);
+                if (wrapper) {
+                    wrapper.innerHTML = `
+                        <iframe class="video-embed-iframe"
+                            src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0"
+                            title="YouTube Video Player"
+                            frameborder="0"
+                            style="width: 100%; height: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 10px;"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                        </iframe>
+                    `;
+                }
+            };
+
+            function appendMessage(sender, text, videos = null) {
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${sender}`;
+                const d = new Date();
+                const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let videosHtml = '';
+                if (videos && videos.length > 0) {
+                    videosHtml = `
+                        <div class="chat-videos-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px; width: 100%; max-width: 380px;">
+                            ${videos.map(vid => `
+                                <div class="chat-video-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;">
+                                    <div class="video-thumb-wrapper" id="chat-vwrap-${vid.id}" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000;">
+                                        <img src="https://img.youtube.com/vi/${vid.id}/hqdefault.jpg" alt="${vid.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div class="video-duration-badge" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600;"><i class="far fa-clock"></i> ${vid.duration}</div>
+                                        <button class="video-play-overlay" onclick="playChatVideo('${vid.id}')" style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;">
+                                            <div class="play-btn-circle" style="width: 38px; height: 38px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px;"><i class="fas fa-play"></i></div>
+                                        </button>
+                                    </div>
+                                    <div style="padding: 12px; text-align: left;">
+                                        <h5 style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #fff;">${vid.title}</h5>
+                                        <p style="margin: 0 0 10px; font-size: 11px; color: #cbd5e1; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${vid.description}</p>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" onclick="playChatVideo('${vid.id}')" style="padding: 6px 12px; font-size: 11px; border-radius: 8px; background: #ef4444; border: none; color: #fff; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-circle-play"></i> Watch Here
+                                            </button>
+                                            <a href="https://www.youtube.com/watch?v=${vid.id}" target="_blank" rel="noopener noreferrer" style="padding: 6px 12px; font-size: 11px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fab fa-youtube"></i> YouTube
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                bubble.innerHTML = `
+                    <div class="chat-bubble-header" style="font-weight:700; font-size:12px;">
+                        ${sender === 'user' ? '👤 You' : '🤖 AI Wellness Assistant'} (${timeStr})
+                    </div>
+                    <div class="chat-bubble-body">
+                        ${text}
+                        ${videosHtml}
+                    </div>
+                `;
+                chatMessages.appendChild(bubble);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const questionText = chatInput.value.trim();
+                if (!questionText) return;
+                appendMessage('user', questionText);
+                chatInput.value = "";
+                typingIndicator.style.display = 'flex';
+                try {
+                    const res = await (await fetch('/api/chatbot', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: questionText }) })).json();
+                    typingIndicator.style.display = 'none';
+                    if (res.success) {
+                        appendMessage('bot', res.reply, res.videos);
+                        lastChatReplyText = res.reply;
+                        speakText(res.reply);
+                        if (res.reminder_created) fetchPersonalReminders();
+                    }
+                } catch(err) { typingIndicator.style.display = 'none'; }
+            });
+
+            const micBtn = document.getElementById('btn-mic');
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.onresult = (e) => { chatInput.value = e.results[0][0].transcript; chatForm.dispatchEvent(new Event('submit')); };
+                micBtn.addEventListener('click', () => recognition.start());
+            }
+
+            function cleanTextForSpeech(text) {
+                if (!text) return "";
+                
+                // 1. Replace <br> or other line-break HTML tags with a period/comma to create a natural pause
+                let clean = text.replace(/<br\s*\/?>/gi, ' . ');
+                
+                // 2. Remove other HTML tags
+                clean = clean.replace(/<[^>]*>/g, ' ');
+                
+                // 3. Remove emojis (unicode emoji ranges)
+                clean = clean.replace(/[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F191}-\u{1F251}\u{1F900}-\u{1F9FF}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F190}\u{2000}-\u{3299}]/gu, '');
+                clean = clean.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDC00-\uDFFF]/g, '');
+
+                // 4. Remove markdown symbols like **, ##, *, _, `, etc.
+                clean = clean.replace(/[\*\#_`~]/g, '');
+                
+                // 5. Clean up bullet points (e.g. "•", "-", "+")
+                clean = clean.replace(/•\s*/g, ' ');
+                clean = clean.replace(/-\s+/g, ' ');
+                clean = clean.replace(/\+\s+/g, ' ');
+                
+                // 6. Strip system messages or template strings
+                clean = clean.replace(/It is now summarizing your health\.{0,3}/gi, '');
+                clean = clean.replace(/🤖 AI Wellness Assistant \(\d{1,2}:\d{2}\s*(?:AM|PM)?\)/gi, '');
+                clean = clean.replace(/👤 You \(\d{1,2}:\d{2}\s*(?:AM|PM)?\)/gi, '');
+                
+                // 7. Replace multiple periods with a single period
+                clean = clean.replace(/\.{2,}/g, '.');
+                
+                // 8. Clean up whitespace
+                clean = clean.replace(/\s+/g, ' ').trim();
+                
+                return clean;
+            }
+
+            function getBestVoice() {
+                if (!('speechSynthesis' in window)) return null;
+                const voices = window.speechSynthesis.getVoices();
+                let preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Zira') || v.name.includes('David') || v.name.includes('Hazel')));
+                if (!preferredVoice) {
+                    preferredVoice = voices.find(v => v.lang.startsWith('en'));
+                }
+                return preferredVoice;
+            }
+
+            function speakText(text) {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    
+                    const cleaned = cleanTextForSpeech(text);
+                    if (!cleaned) return;
+                    
+                    const utterance = new SpeechSynthesisUtterance(cleaned);
+                    
+                    const voice = getBestVoice();
+                    if (voice) {
+                        utterance.voice = voice;
+                    }
+                    
+                    utterance.rate = 0.95; // professional, clear pace
+                    utterance.pitch = 1.0;
+                    
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+
+            document.getElementById('btn-voice-play').addEventListener('click', () => speakText(lastChatReplyText));
+            document.getElementById('btn-voice-pause').addEventListener('click', () => { if ('speechSynthesis' in window) window.speechSynthesis.pause(); });
+            document.getElementById('btn-voice-resume').addEventListener('click', () => { if ('speechSynthesis' in window) window.speechSynthesis.resume(); });
+            document.getElementById('btn-voice-stop').addEventListener('click', () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); });
+        });
+    </script>
+</body>
+</html>

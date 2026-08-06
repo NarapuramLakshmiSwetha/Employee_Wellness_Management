@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Wellness Management Analytics - Admin Portal</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body id="dashboard-view">
+    <!-- Floating Background Lighting Blobs -->
+    <div class="bg-bubbles">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Dashboard Content Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Header Nav Bar -->
+        <header class="dash-header glass-card" style="padding: 15px 30px; border-radius: 16px;">
+    <button id="btn-hamburger" class="btn-hamburger"><i class="fas fa-bars"></i></button>
+            <div class="user-profile">
+                <div class="logo-icon" style="width: 40px; height: 40px; font-size: 16px; margin-bottom: 0; border-radius: 10px; background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="user-info">
+                    <h1 class="project-title" style="font-size: 16px; margin-bottom: 0;">Wellness Admin</h1>
+                    <p class="project-subtitle" style="font-size: 10px; letter-spacing: 1px;">Control Panel</p>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar" style="background: linear-gradient(135deg, var(--danger) 0%, var(--accent) 100%);">
+                    A
+                </div>
+                <div class="user-info" style="text-align: left; margin-right: 15px;">
+                    <h4>Welcome, Lakshmi Swetha</h4>
+                    <p style="color: var(--danger);">System Administrator</p>
+                </div>
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+</header>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 style="color: var(--text-primary); margin: 0;">Menu</h3>
+            <button class="sidebar-close btn-hamburger" id="btn-sidebar-close"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu" style="list-style:none; padding:0; margin-top:20px;">
+            <li style="margin-bottom:15px;"><a href="admin.html" style="color: var(--text-primary); text-decoration:none; font-size:16px;"><i class="fas fa-tachometer-alt" style="margin-right:8px;"></i>Dashboard</a></li>
+            <li style="margin-bottom:15px;"><a href="#" style="color: var(--text-primary); text-decoration:none; font-size:16px;"><i class="fas fa-users" style="margin-right:8px;"></i>Employees</a></li>
+            <li style="margin-bottom:15px;"><a href="#" style="color: var(--text-primary); text-decoration:none; font-size:16px;"><i class="fas fa-chart-line" style="margin-right:8px;"></i>Reports</a></li>
+            <li style="margin-bottom:15px;"><a href="#" style="color: var(--text-primary); text-decoration:none; font-size:16px;"><i class="fas fa-cog" style="margin-right:8px;"></i>Settings</a></li>
+        </ul>
+    </nav>
+
+        <!-- Page Section Title -->
+        <div style="margin-bottom: 30px; text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Security & User Audit Panel</h2>
+            <p style="color: var(--text-secondary); font-size: 15px; margin-top: 5px;">Monitor user registration, lockout states, and system-wide login activities.</p>
+        </div>
+
+        <!-- Stats Widgets Section -->
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <!-- Stat 1 -->
+            <div class="module-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0;">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(16, 185, 129, 0.1); color: var(--primary); width: 45px; height: 45px; border-radius: 10px; font-size: 18px;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 22px; font-weight: 700; color: white; line-height: 1.2;">{{ stats.total_users }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Total Users</p>
+                </div>
+            </div>
+            <!-- Stat 2 -->
+            <div class="module-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0;">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(6, 182, 212, 0.1); color: var(--secondary); width: 45px; height: 45px; border-radius: 10px; font-size: 18px;">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 22px; font-weight: 700; color: white; line-height: 1.2;">{{ stats.active_users }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Active Users</p>
+                </div>
+            </div>
+            <!-- Stat 3 -->
+            <div class="module-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0;">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 45px; height: 45px; border-radius: 10px; font-size: 18px;">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 22px; font-weight: 700; color: white; line-height: 1.2;">{{ stats.locked_users }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Locked Users</p>
+                </div>
+            </div>
+            <!-- Stat 4 -->
+            <div class="module-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0;">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(99, 102, 241, 0.1); color: var(--accent); width: 45px; height: 45px; border-radius: 10px; font-size: 18px;">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 22px; font-weight: 700; color: white; line-height: 1.2;">{{ stats.total_logins }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Total Logins</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wellness Health Overview Cards -->
+        <div style="margin-bottom: 12px; margin-top: 10px;">
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-notes-medical" style="color: var(--primary);"></i> Wellness Health Overview
+            </h3>
+        </div>
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <!-- Wellness Card 1: Total Employees -->
+            <div class="module-card admin-wellness-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0; border-color: rgba(16, 185, 129, 0.18);">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(16, 185, 129, 0.12); color: #34d399; width: 45px; height: 45px; border-radius: 10px; font-size: 18px; flex-shrink: 0; box-shadow: 0 0 14px rgba(16, 185, 129, 0.15);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 26px; font-weight: 800; color: #34d399; line-height: 1.1; letter-spacing: -0.5px;">{{ wellness_stats.total_employees }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;">Total Employees</p>
+                </div>
+            </div>
+            <!-- Wellness Card 2: Healthy Employees -->
+            <div class="module-card admin-wellness-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0; border-color: rgba(6, 182, 212, 0.18);">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(6, 182, 212, 0.12); color: #22d3ee; width: 45px; height: 45px; border-radius: 10px; font-size: 18px; flex-shrink: 0; box-shadow: 0 0 14px rgba(6, 182, 212, 0.15);">
+                    <i class="fas fa-heart-pulse"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 26px; font-weight: 800; color: #22d3ee; line-height: 1.1; letter-spacing: -0.5px;">{{ wellness_stats.healthy_employees }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;">Healthy Employees</p>
+                </div>
+            </div>
+            <!-- Wellness Card 3: High Risk Employees -->
+            <div class="module-card admin-wellness-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0; border-color: rgba(239, 68, 68, 0.18);">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(239, 68, 68, 0.12); color: #f87171; width: 45px; height: 45px; border-radius: 10px; font-size: 18px; flex-shrink: 0; box-shadow: 0 0 14px rgba(239, 68, 68, 0.15);">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 26px; font-weight: 800; color: #f87171; line-height: 1.1; letter-spacing: -0.5px;">{{ wellness_stats.high_risk_employees }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;">High Risk Employees</p>
+                </div>
+            </div>
+            <!-- Wellness Card 4: Pending Assessments -->
+            <div class="module-card admin-wellness-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0; border-color: rgba(245, 158, 11, 0.18);">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(245, 158, 11, 0.12); color: #fbbf24; width: 45px; height: 45px; border-radius: 10px; font-size: 18px; flex-shrink: 0; box-shadow: 0 0 14px rgba(245, 158, 11, 0.15);">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 26px; font-weight: 800; color: #fbbf24; line-height: 1.1; letter-spacing: -0.5px;">{{ wellness_stats.pending_assessments }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;">Pending Assessments</p>
+                </div>
+            </div>
+            <!-- Wellness Card 5: At-Risk Mental Health -->
+            <div class="module-card admin-wellness-card" style="padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 15px; min-height: unset; margin: 0; border-color: rgba(99, 102, 241, 0.18);">
+                <div class="module-icon-box" style="margin-bottom: 0; background: rgba(99, 102, 241, 0.12); color: #818cf8; width: 45px; height: 45px; border-radius: 10px; font-size: 18px; flex-shrink: 0; box-shadow: 0 0 14px rgba(99, 102, 241, 0.15);">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 26px; font-weight: 800; color: #818cf8; line-height: 1.1; letter-spacing: -0.5px;">{{ wellness_stats.at_risk_mental_health or 0 }}</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;">At-Risk Mental Health</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 30px;">
+            <!-- Login History Logs Section -->
+            <div class="login-history-section" style="margin-top: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 style="font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-history" style="margin-right: 10px; color: var(--primary);"></i>Recent Logins History
+                        </h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px;">Logs of successful and failed user logins.</p>
+                    </div>
+                    <button id="btn-clear-logs" style="background: linear-gradient(135deg, var(--danger) 0%, #b91c1c 100%); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+                        <i class="fas fa-trash-alt"></i> Clear All Logs
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Log ID</th>
+                                <th>Employee Info</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Session Times</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if logs %}
+                                {% for log in logs %}
+                                    <tr>
+                                        <td>#{{ log.id }}</td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <strong>{{ log.full_name or log.username }}</strong>
+                                                <span style="font-size: 11px; color: var(--text-muted);">{{ log.employee_id or 'N/A' }} | {{ log.username }}</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="font-size: 12px; padding: 2px 6px; background: rgba(255,255,255,0.05); border-radius: 4px;">{{ log.job_role or 'N/A' }}</span></td>
+                                        <td>
+                                            {% if log.status == 'SUCCESS' %}
+                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Success</span>
+                                            {% else %}
+                                                <span class="badge badge-failed"><i class="fas fa-times-circle"></i> {{ log.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="font-size: 12px; color: var(--text-muted);">
+                                            In: {{ log.login_time }}<br>
+                                            Out: {{ log.logout_time or 'Active' }}
+                                        </td>
+                                        <td>
+                                            {% if log.session_duration %}
+                                                <span style="font-size: 12px;">{{ (log.session_duration / 60)|int }}m {{ log.session_duration % 60 }}s</span>
+                                            {% else %}
+                                                <span style="font-size: 12px; color: var(--accent);">Ongoing</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>No login records found.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab List (Registered Employees) -->
+            <div class="login-history-section" style="margin-top: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 style="font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-users" style="margin-right: 10px; color: var(--secondary);"></i>Registered Employees
+                        </h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px;">Active user accounts registered in the wellness system.</p>
+                    </div>
+                    <button id="btn-add-employee-open" class="btn-action-next btn-submit" style="margin-top: 0; width: auto; padding: 10px 20px; font-size: 13px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); border-radius: 10px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); cursor: pointer;">
+                        <i class="fas fa-user-plus" style="margin-right: 6px;"></i>Add Employee
+                    </button>
+                </div>
+                
+                <!-- Search and Filter Controls -->
+                <div style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                    <div style="flex: 1; min-width: 200px;">
+                        <div class="input-container" style="margin-bottom: 0;">
+                            <i class="fas fa-search input-icon" style="color: var(--text-muted);"></i>
+                            <input type="text" id="emp-search-input" class="form-control" placeholder="Search by Name, Employee ID, or Dept" style="padding-top: 8px; padding-bottom: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        </div>
+                    </div>
+                    <div style="flex: 0 0 auto;">
+                        <select id="emp-risk-filter" class="form-control" style="padding-top: 8px; padding-bottom: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-primary);">
+                            <option value="All">All Health Risks</option>
+                            <option value="Low Risk">Healthy (Low Risk)</option>
+                            <option value="Moderate Risk">Medium Risk</option>
+                            <option value="High Risk">High Risk</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Last Active</th>
+                                <th>Mental Health</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if users %}
+                                {% for user in users %}
+                                    <tr class="employee-row" data-emp-id="{{ user.employee_id or '' }}" data-emp-name="{{ (user.full_name or '') | lower }}" data-dept="{{ (user.department or '') | lower }}" data-risk="{{ user.health_risk or 'Unknown' }}">
+                                        <td>#{{ user.id }}<br><small style="color:var(--text-muted)">{{ user.employee_id }}</small></td>
+                                        <td><strong>{{ user.username }}</strong><br><small style="color:var(--text-muted)">{{ user.full_name }} | {{ user.department }}</small></td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.last_active or 'Never' }}</td>
+                                        <td>
+                                            {% if user.mental_health_status in ['Excellent', 'Good'] %}
+                                                <span class="badge badge-success" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 6px;">{{ user.mental_health_status }}</span>
+                                            {% elif user.mental_health_status == 'Moderate' %}
+                                                <span class="badge badge-average" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 8px; border-radius: 6px;">{{ user.mental_health_status }}</span>
+                                            {% elif user.mental_health_status == 'No Record' %}
+                                                <span class="badge badge-none" style="background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); padding: 4px 8px; border-radius: 6px;">{{ user.mental_health_status }}</span>
+                                            {% else %}
+                                                <span class="badge badge-attention" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 8px; border-radius: 6px;">{{ user.mental_health_status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.login_time and (not user.logout_time or user.login_time > user.logout_time) %}
+                                                <span class="badge badge-success" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 6px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Active</span>
+                                            {% else %}
+                                                <span class="badge badge-failed" style="background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); padding: 4px 8px; border-radius: 6px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Offline</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.username != 'admin' and user.job_role != 'admin' %}
+                                            <button onclick="confirmDeleteEmployee({{ user.id }}, '{{ user.username }}')" class="btn-logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); padding: 5px 10px; font-size: 12px; margin: 0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                                <i class="fas fa-trash-alt"></i> Delete
+                                            </button>
+                                            {% else %}
+                                            <span style="font-size: 11px; color: var(--text-muted);">Protected</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>No employees found.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Mental Health & Sentiment Reports Section -->
+        <div class="login-history-section" style="margin-top: 30px;">
+            <h2 style="font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <i class="fas fa-brain" style="margin-right: 10px; color: var(--primary);"></i>Employee Mental Health & Sentiment Reports
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px;">Track VADER sentiment score outputs, stress alerts, and risk levels derived from employees' weekly journals and feedback.</p>
+
+            <!-- Search and Filter Controls -->
+            <div style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                <div style="flex: 1; min-width: 200px;">
+                    <div class="input-container" style="margin-bottom: 0;">
+                        <i class="fas fa-search input-icon" style="color: var(--text-muted);"></i>
+                        <input type="text" id="sentiment-search-input" class="form-control" placeholder="Search by Employee Name..." style="padding-top: 8px; padding-bottom: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    </div>
+                </div>
+                <div style="flex: 0 0 auto;">
+                    <select id="sentiment-filter" class="form-control" style="padding-top: 8px; padding-bottom: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-primary);">
+                        <option value="All">All Sentiments</option>
+                        <option value="Positive">Positive</option>
+                        <option value="Neutral">Neutral</option>
+                        <option value="Negative">Negative</option>
+                    </select>
+                </div>
+                <div style="flex: 0 0 auto;">
+                    <select id="sentiment-risk-filter" class="form-control" style="padding-top: 8px; padding-bottom: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-primary);">
+                        <option value="All">All Risks</option>
+                        <option value="Low">Low Risk</option>
+                        <option value="Moderate">Moderate Risk</option>
+                        <option value="High">High Risk</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Journal Feedback Snippet</th>
+                            <th>VADER Score Breakdown</th>
+                            <th>Derived Status</th>
+                            <th>Risk State</th>
+                            <th>Report</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-sentiment-tbody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading sentiment analysis logs...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Administrator Control Management Section -->
+        <div class="login-history-section" style="margin-top: 30px;">
+            <h2 style="font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <i class="fas fa-user-shield" style="margin-right: 10px; color: var(--danger);"></i>Create New Administrator Account
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px; margin-bottom: 25px;">Only authenticated system administrators can create new admin credentials.</p>
+
+            <!-- Alert Box for Admin Creation Success/Failure -->
+            <div class="alert-box" id="alert-create-admin" style="margin-bottom: 20px;">
+                <i class="fas fa-info-circle alert-icon"></i>
+                <span class="alert-msg"></span>
+            </div>
+
+            <form id="form-create-admin" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: flex-end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="new-admin-username" class="form-label">Admin Username</label>
+                    <div class="input-container">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="new-admin-username" class="form-control" placeholder="Enter username" required autocomplete="username" style="padding-top: 10px; padding-bottom: 10px;">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="new-admin-email" class="form-label">Email Address</label>
+                    <div class="input-container">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="new-admin-email" class="form-control" placeholder="Enter email address" required autocomplete="email" style="padding-top: 10px; padding-bottom: 10px;">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="new-admin-password" class="form-label">Password</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="new-admin-password" class="form-control" placeholder="Enter password" required autocomplete="new-password" style="padding-top: 10px; padding-bottom: 10px;">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="new-admin-confirm" class="form-label">Confirm Password</label>
+                    <div class="input-container">
+                        <i class="fas fa-shield-halved input-icon"></i>
+                        <input type="password" id="new-admin-confirm" class="form-control" placeholder="Confirm password" required autocomplete="new-password" style="padding-top: 10px; padding-bottom: 10px;">
+                    </div>
+                </div>
+
+                <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 10px;">
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px; margin-top: 0; background: linear-gradient(135deg, var(--danger) 0%, var(--accent) 100%); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
+                        <i class="fas fa-user-plus" style="margin-right: 5px;"></i> Create Administrator
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logout-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-sign-out-alt modal-icon"></i>
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-desc">Are you sure you want to logout? You will be redirected to the login page.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-logout-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-logout-confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-trash-can modal-icon" style="color: var(--danger); text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);"></i>
+            <h3 class="modal-title">Confirm Delete</h3>
+            <p class="modal-desc" id="delete-modal-desc">Are you sure you want to delete this employee? This action is permanent and cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-delete-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-delete-confirm" style="background: linear-gradient(135deg, var(--danger) 0%, #be123c 100%);">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal-overlay" id="add-employee-modal-overlay" style="z-index: 1100;">
+        <div class="confirm-modal" style="max-width: 550px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 30px;">
+            <i class="fas fa-user-plus modal-icon" style="color: var(--secondary); text-shadow: 0 0 20px rgba(6, 182, 212, 0.4); margin-bottom: 15px;"></i>
+            <h3 class="modal-title" style="margin-bottom: 20px;">Add New Employee</h3>
+            
+            <form id="form-add-employee" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Username</label>
+                    <div class="input-container">
+                        <input type="text" id="add-emp-username" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Email Address</label>
+                    <div class="input-container">
+                        <input type="email" id="add-emp-email" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Password</label>
+                    <div class="input-container">
+                        <input type="password" id="add-emp-password" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Full Name</label>
+                    <div class="input-container">
+                        <input type="text" id="add-emp-fullname" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Employee ID</label>
+                    <div class="input-container">
+                        <input type="text" id="add-emp-empid" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Mobile Number</label>
+                    <div class="input-container">
+                        <input type="text" id="add-emp-mobile" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Gender</label>
+                    <select id="add-emp-gender" class="form-control" style="padding-top: 8px; padding-bottom: 8px; color: var(--text-primary); background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Date of Birth</label>
+                    <div class="input-container">
+                        <input type="date" id="add-emp-dob" class="form-control" required style="padding-top: 8px; padding-bottom: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Department</label>
+                    <select id="add-emp-dept" class="form-control" style="padding-top: 8px; padding-bottom: 8px; color: var(--text-primary); background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);">
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Sales">Sales</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11px;">Designation</label>
+                    <select id="add-emp-desg" class="form-control" style="padding-top: 8px; padding-bottom: 8px; color: var(--text-primary); background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);">
+                        <option value="Staff">Staff</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Director">Director</option>
+                        <option value="VP">VP</option>
+                    </select>
+                </div>
+                <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 15px; margin-top: 15px;">
+                    <button type="button" class="btn-modal btn-modal-cancel" id="btn-add-emp-cancel" style="margin: 0; width: auto; padding: 10px 25px;">Cancel</button>
+                    <button type="submit" class="btn-modal btn-modal-confirm" style="margin: 0; width: auto; padding: 10px 25px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="static/js/app.js"></script>
+    <script>
+        // Employee Filtering Logic
+        const empSearchInput = document.getElementById('emp-search-input');
+        const empRiskFilter = document.getElementById('emp-risk-filter');
+        const employeeRows = document.querySelectorAll('.employee-row');
+
+        function filterEmployees() {
+            const searchTerm = empSearchInput.value.toLowerCase().trim();
+            const riskFilter = empRiskFilter.value;
+
+            employeeRows.forEach(row => {
+                const empId = (row.getAttribute('data-emp-id') || '').toLowerCase();
+                const empName = (row.getAttribute('data-emp-name') || '').toLowerCase();
+                const dept = (row.getAttribute('data-dept') || '').toLowerCase();
+                const risk = row.getAttribute('data-risk');
+
+                const matchesSearch = empId.includes(searchTerm) || empName.includes(searchTerm) || dept.includes(searchTerm);
+                
+                let matchesRisk = true;
+                if (riskFilter !== 'All') {
+                    matchesRisk = (risk === riskFilter);
+                }
+
+                if (matchesSearch && matchesRisk) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        if (empSearchInput) empSearchInput.addEventListener('input', filterEmployees);
+        if (empRiskFilter) empRiskFilter.addEventListener('change', filterEmployees);
+
+        // Add Employee Modal Handlers
+        const btnAddEmpOpen = document.getElementById('btn-add-employee-open');
+        const btnAddEmpCancel = document.getElementById('btn-add-emp-cancel');
+        const modalAddEmp = document.getElementById('add-employee-modal-overlay');
+        const formAddEmp = document.getElementById('form-add-employee');
+
+        if (btnAddEmpOpen && modalAddEmp) {
+            btnAddEmpOpen.addEventListener('click', () => {
+                modalAddEmp.classList.add('active');
+            });
+        }
+
+        if (btnAddEmpCancel && modalAddEmp) {
+            btnAddEmpCancel.addEventListener('click', () => {
+                modalAddEmp.classList.remove('active');
+                if (formAddEmp) formAddEmp.reset();
+            });
+        }
+
+        if (formAddEmp) {
+            formAddEmp.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btnSubmit = formAddEmp.querySelector('button[type="submit"]');
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+                const payload = {
+                    username: document.getElementById('add-emp-username').value.trim(),
+                    email: document.getElementById('add-emp-email').value.trim(),
+                    password: document.getElementById('add-emp-password').value.trim(),
+                    full_name: document.getElementById('add-emp-fullname').value.trim(),
+                    employee_id: document.getElementById('add-emp-empid').value.trim(),
+                    mobile_number: document.getElementById('add-emp-mobile').value.trim(),
+                    gender: document.getElementById('add-emp-gender').value,
+                    dob: document.getElementById('add-emp-dob').value,
+                    department: document.getElementById('add-emp-dept').value,
+                    designation: document.getElementById('add-emp-desg').value
+                };
+
+                try {
+                    const response = await fetch('/api/admin/add-employee', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to add employee: ' + data.message);
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = 'Add';
+                    }
+                } catch (err) {
+                    alert('An error occurred while adding the employee.');
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = 'Add';
+                }
+            });
+        }
+
+        let deleteEmployeeId = null;
+
+        function confirmDeleteEmployee(userId, username) {
+            deleteEmployeeId = userId;
+            document.getElementById('delete-modal-desc').textContent = `Are you sure you want to delete employee "${username}"? All health data and login logs associated with this account will be permanently deleted.`;
+            document.getElementById('delete-modal-overlay').classList.add('active');
+        }
+
+        document.getElementById('btn-delete-cancel').addEventListener('click', () => {
+            document.getElementById('delete-modal-overlay').classList.remove('active');
+            deleteEmployeeId = null;
+        });
+
+        document.getElementById('btn-delete-confirm').addEventListener('click', async () => {
+            if (!deleteEmployeeId) return;
+
+            const btnConfirm = document.getElementById('btn-delete-confirm');
+            btnConfirm.disabled = true;
+            btnConfirm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+            try {
+                const response = await fetch('/api/admin/delete-employee', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: deleteEmployeeId })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to delete employee: ' + data.message);
+                    btnConfirm.disabled = false;
+                    btnConfirm.innerHTML = 'Delete';
+                }
+            } catch (err) {
+                alert('An error occurred while deleting the employee.');
+                btnConfirm.disabled = false;
+                btnConfirm.innerHTML = 'Delete';
+            }
+        });
+
+        // --- Sentiment Reports Handling ---
+        let sentimentReports = [];
+
+        async function loadSentimentReports() {
+            const tbody = document.getElementById('admin-sentiment-tbody');
+            if (!tbody) return;
+
+            try {
+                const response = await fetch('/api/admin/sentiment-reports');
+                const data = await response.json();
+                if (data.success && data.reports) {
+                    sentimentReports = data.reports;
+                    renderSentimentReports();
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Failed to load sentiment reports: ${data.message || 'Unknown error'}
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Error fetching reports from server.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderSentimentReports() {
+            const tbody = document.getElementById('admin-sentiment-tbody');
+            const searchVal = document.getElementById('sentiment-search-input').value.toLowerCase().trim();
+            const sentimentVal = document.getElementById('sentiment-filter').value;
+            const riskVal = document.getElementById('sentiment-risk-filter').value;
+
+            const filtered = sentimentReports.filter(rep => {
+                const matchesSearch = rep.employee_name.toLowerCase().includes(searchVal) || String(rep.user_id).includes(searchVal);
+                const matchesSentiment = (sentimentVal === 'All') || (rep.sentiment === sentimentVal);
+                const matchesRisk = (riskVal === 'All') || (rep.risk_level === riskVal);
+                return matchesSearch && matchesSentiment && matchesRisk;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            No matching sentiment analysis records found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            filtered.forEach(rep => {
+                const tr = document.createElement('tr');
+                
+                const dateCell = `<td style="color: var(--text-secondary); font-family: monospace; font-size: 12px; white-space: nowrap;">${rep.analysis_date}</td>`;
+                const empCell = `<td><strong>${escapeHtml(rep.employee_name)}</strong><br><small style="color: var(--text-muted)">User ID: #${rep.user_id}</small></td>`;
+                const feedCell = `<td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(rep.feedback)}">${escapeHtml(rep.feedback)}</td>`;
+                
+                // VADER breakdown
+                const scoreColor = rep.compound_score >= 0.05 ? '#10b981' : (rep.compound_score <= -0.05 ? '#ef4444' : '#f59e0b');
+                const compoundVal = rep.compound_score >= 0 ? `+${rep.compound_score.toFixed(4)}` : rep.compound_score.toFixed(4);
+                
+                const scoreCell = `
+                    <td>
+                        <div style="display: flex; flex-direction: column; font-size: 11px; gap: 2px;">
+                            <span style="font-weight: 700; color: ${scoreColor}">Compound: ${compoundVal}</span>
+                            <span style="color: var(--text-muted)">Pos: ${rep.positive_score} | Neu: ${rep.neutral_score} | Neg: ${rep.negative_score}</span>
+                        </div>
+                    </td>
+                `;
+
+                // Derived status badge
+                let statusColor = '#10b981';
+                if (rep.mental_health_status === 'Moderate') statusColor = '#f59e0b';
+                else if (['At Risk', 'Critical'].includes(rep.mental_health_status)) statusColor = '#ef4444';
+                const statusCell = `<td><span style="color: ${statusColor}; font-weight: 700; font-size: 12px;">${rep.mental_health_status}</span></td>`;
+
+                // Risk badge
+                const riskClass = rep.risk_level === 'Low' ? 'badge-excellent' : (rep.risk_level === 'Moderate' ? 'badge-average' : 'badge-attention');
+                const riskCell = `<td><span class="badge-status ${riskClass}">${rep.risk_level} Risk</span></td>`;
+
+                // Actions cell (PDF Download link)
+                const actionCell = `
+                    <td>
+                        <a href="/api/sentiment/download-pdf/${rep.id}" class="btn-download" title="Download PDF Report" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </td>
+                `;
+
+                tr.innerHTML = dateCell + empCell + feedCell + scoreCell + statusCell + riskCell + actionCell;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Hook listeners
+        document.getElementById('sentiment-search-input').addEventListener('input', renderSentimentReports);
+        document.getElementById('sentiment-filter').addEventListener('change', renderSentimentReports);
+        document.getElementById('sentiment-risk-filter').addEventListener('change', renderSentimentReports);
+
+        // Load initially
+        loadSentimentReports();
+    </script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Risk Prediction</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+        }
+        @media (max-width: 600px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .prediction-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        .risk-badge-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+        .risk-low {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .risk-moderate {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .risk-high {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        /* Circular Gauge Styles */
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 20px 0;
+        }
+        .gauge-svg {
+            width: 200px;
+            height: 200px;
+            transform: rotate(-90deg);
+        }
+        .gauge-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 14px;
+        }
+        .gauge-fill {
+            fill: none;
+            stroke-width: 14px;
+            stroke-linecap: round;
+            stroke-dasharray: 565.48; /* 2 * PI * r (r=90) */
+            stroke-dashoffset: 565.48;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.1, 0.8, 0.25, 1);
+        }
+        .gauge-text-box {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .gauge-value {
+            font-size: 40px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1;
+        }
+        .gauge-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+        /* AI health narrative box */
+        .ai-narrative-box {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 25px;
+            position: relative;
+        }
+        .ai-narrative-box::before {
+            content: "AI Analysis";
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #6366f1;
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+        /* Progress Bar Metrics */
+        .metric-row {
+            margin-bottom: 18px;
+        }
+        .metric-label-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .metric-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .metric-value {
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            width: 0%;
+            transition: width 1.2s ease-in-out;
+        }
+        .chart-box {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body id="dashboard-view">
+    <!-- Sliding Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile" style="align-items: center;">
+                <div class="logo-icon" style="width: 32px; height: 32px; font-size: 14px; margin-bottom: 0; border-radius: 8px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 16px; color: #fff; margin-left: 10px;">Wellness Hub</span>
+            </div>
+            <button class="sidebar-close" id="btn-sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                {% if profile_photo %}
+                    <img src="static/uploads/profile_Lakshmi Swetha_photo.jpg" alt="Avatar">
+                {% else %}
+                    {{ username[0].upper() if username else 'U' }}
+                {% endif %}
+            </div>
+            <h4 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px;">Lakshmi Swetha</h4>
+            <p style="font-size: 12px; color: var(--primary); font-weight: 600;">Employee Profile</p>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="dashboard.html">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="profile.html">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="security.html">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Security</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a id="btn-sidebar-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Floating Background Lighting Blobs -->
+    <div class="bg-bubbles">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Dashboard Content Wrapper -->
+    <div class="dashboard-wrapper" style="max-width: 1100px; margin: 0 auto; width: 100%; padding: 40px 20px;">
+        <!-- Header Nav Bar -->
+        <header class="dash-header glass-card" style="padding: 15px 30px; border-radius: 16px; margin-bottom: 40px;">
+            <div class="user-profile">
+                <button class="btn-hamburger" id="btn-sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo-icon" style="width: 40px; height: 40px; font-size: 16px; margin-bottom: 0; border-radius: 10px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="user-info">
+                    <h1 class="project-title" style="font-size: 16px; margin-bottom: 0;">Employee Wellness</h1>
+                    <p class="project-subtitle" style="font-size: 10px; letter-spacing: 1px;">Analytics Hub</p>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center;">
+                    {% if profile_photo %}
+                        <img src="static/uploads/profile_Lakshmi Swetha_photo.jpg" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        {{ username[0].upper() if username else 'U' }}
+                    {% endif %}
+                </div>
+                <div class="user-info" style="text-align: left; margin-right: 15px;">
+                    <h4>Welcome, Lakshmi Swetha</h4>
+                    <p style="color: var(--primary);">Employee Profile</p>
+                </div>
+                <button onclick="window.location.href="health_data.html"" class="btn-logout" style="background: rgba(255,255,255,0.05); color: #fff; margin-right: 10px; border-color: rgba(255,255,255,0.1);">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Biometrics Form</span>
+                </button>
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Section Title -->
+        <div style="margin-bottom: 40px; text-align: left;">
+            <h2 style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Wellness Risk Prediction Dashboard</h2>
+            <p style="color: var(--text-secondary); font-size: 15px; margin-top: 5px;">AI-driven biometric analysis evaluating your chronic health risks and lifestyle behaviors.</p>
+        </div>
+
+        <!-- Global Alert Info Box -->
+        <div class="alert-box" id="alert-prediction" style="margin-bottom: 30px; display: none;">
+            <i class="fas fa-info-circle alert-icon"></i>
+            <span class="alert-msg"></span>
+        </div>
+
+        <div class="grid-2">
+            <!-- LEFT PANEL: Circular Gauge and Risk Rating -->
+            <div class="prediction-card" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center;">
+                <div>
+                    {% if risk_category == 'Low Risk' %}
+                        <span class="risk-badge-large risk-low"><i class="fas fa-heart"></i> Low Risk Profile</span>
+                    {% elif risk_category == 'Moderate Risk' %}
+                        <span class="risk-badge-large risk-moderate"><i class="fas fa-triangle-exclamation"></i> Moderate Risk Profile</span>
+                    {% else %}
+                        <span class="risk-badge-large risk-high"><i class="fas fa-triangle-exclamation"></i> High Risk Profile</span>
+                    {% endif %}
+                    
+                    <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Overall Wellness Evaluation</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; max-width: 320px; margin: 0 auto;">Combined assessment of height, weight, body mass index, blood pressure, and personal medical history.</p>
+                </div>
+
+                <div class="gauge-container">
+                    <svg class="gauge-svg">
+                        <circle class="gauge-bg" cx="100" cy="100" r="90"></circle>
+                        <circle class="gauge-fill" id="gauge-fill" cx="100" cy="100" r="90" style="stroke: {{ 'var(--primary)' if risk_category == 'Low Risk' else ('var(--warning)' if risk_category == 'Moderate Risk' else 'var(--danger)') }};"></circle>
+                    </svg>
+                    <div class="gauge-text-box">
+                        <span class="gauge-value" id="gauge-val">0</span>
+                        <span class="gauge-label">Score</span>
+                    </div>
+                </div>
+
+                <div style="width: 100%;">
+                    <div class="ai-narrative-box">
+                        <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-primary); text-align: left; margin: 0;">
+                            {{ ai_summary }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: Progress bars and Chart.js factors -->
+            <div class="prediction-card">
+                <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 25px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-chart-line" style="color: var(--secondary);"></i>
+                    <span>Wellness Analytics Details</span>
+                </h3>
+
+                <!-- Metric 1: BMI Status -->
+                <div class="metric-row">
+                    <div class="metric-label-container">
+                        <span class="metric-title"><i class="fas fa-weight-scale" style="color: #6366f1;"></i> BMI Status ({{ health_data.bmi_category }})</span>
+                        <span class="metric-value">{{ bmi_score_rating }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" data-width="{{ bmi_score_rating }}" style="background: linear-gradient(90deg, #6366f1, var(--secondary));"></div>
+                    </div>
+                </div>
+
+                <!-- Metric 2: BP Status -->
+                <div class="metric-row">
+                    <div class="metric-label-container">
+                        <span class="metric-title"><i class="fas fa-heart-pulse" style="color: #ef4444;"></i> Blood Pressure ({{ health_data.blood_pressure }} mmHg)</span>
+                        <span class="metric-value">{{ bp_score_rating }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" data-width="{{ bp_score_rating }}" style="background: linear-gradient(90deg, #ef4444, var(--accent));"></div>
+                    </div>
+                </div>
+
+                <!-- Metric 3: Hydration Status -->
+                <div class="metric-row">
+                    <div class="metric-label-container">
+                        <span class="metric-title"><i class="fas fa-glass-water" style="color: #06b6d4;"></i> Hydration Rating ({{ health_data.water_intake }})</span>
+                        <span class="metric-value">{{ water_score_rating }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" data-width="{{ water_score_rating }}" style="background: linear-gradient(90deg, #06b6d4, var(--primary));"></div>
+                    </div>
+                </div>
+
+                <!-- Metric 4: Medical History Risk -->
+                <div class="metric-row">
+                    <div class="metric-label-container">
+                        <span class="metric-title"><i class="fas fa-notes-medical" style="color: #f59e0b;"></i> Medical Risks (Condition: {{ health_data.medical_condition }})</span>
+                        <span class="metric-value">{{ 100 - medical_risk_rating }}% Healthy</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" data-width="{{ 100 - medical_risk_rating }}" style="background: linear-gradient(90deg, #f59e0b, #ef4444); width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Factor Score Charts -->
+                <div class="chart-box">
+                    <h4 style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px;">Wellness Metrics Breakdown</h4>
+                    <canvas id="wellnessChart" style="max-height: 160px; width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Footer -->
+        <div style="margin-top: 40px; margin-bottom: 50px; display: flex; justify-content: flex-end; gap: 20px;">
+            <button onclick="savePredictionReport()" class="btn-action btn-action-save" id="btn-save-report" style="padding: 15px 40px; font-size: 15px; border-radius: 14px;">
+                <i class="fas fa-cloud-arrow-up"></i>
+                <span>Save</span>
+            </button>
+            <button onclick="window.location.href="dashboard.html"" class="btn-action btn-action-next" style="padding: 15px 40px; font-size: 15px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: none;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Go Back to Dashboard</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const score = {{ wellness_score }};
+            
+            // Set Gauge animated offset
+            const fill = document.getElementById('gauge-fill');
+            const radius = 90;
+            const circumference = 2 * Math.PI * radius; // 565.48
+            
+            // Map score 0-100 to stroke-dashoffset
+            const offset = circumference - (score / 100) * circumference;
+            
+            setTimeout(() => {
+                fill.style.strokeDashoffset = offset;
+                
+                // Count up score text
+                let count = 0;
+                const speed = 1500 / score; // Total duration 1.5s
+                const counter = setInterval(() => {
+                    if (count >= score) {
+                        clearInterval(counter);
+                    } else {
+                        count++;
+                        document.getElementById('gauge-val').textContent = count;
+                    }
+                }, speed);
+            }, 100);
+
+            // Animate Progress Bars
+            const fills = document.querySelectorAll('.progress-bar-fill');
+            setTimeout(() => {
+                fills.forEach(bar => {
+                    const width = bar.getAttribute('data-width');
+                    bar.style.width = width + '%';
+                });
+            }, 200);
+
+            // Render Chart.js factor Breakdown
+            const ctx = document.getElementById('wellnessChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['BMI', 'Blood Pressure', 'Hydration', 'Medical History'],
+                    datasets: [{
+                        label: 'Metric Rating (%)',
+                        data: [{{ bmi_score_rating }}, {{ bp_score_rating }}, {{ water_score_rating }}, {{ 100 - medical_risk_rating }}],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.4)',
+                            'rgba(239, 68, 68, 0.4)',
+                            'rgba(6, 182, 212, 0.4)',
+                            'rgba(245, 158, 11, 0.4)'
+                        ],
+                        borderColor: [
+                            '#6366f1',
+                            '#ef4444',
+                            '#06b6d4',
+                            '#f59e0b'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10, family: 'Outfit' } }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: 'rgba(255,255,255,0.03)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        });
+
+        function savePredictionReport() {
+            const alertBox = document.getElementById('alert-prediction');
+            alertBox.style.display = 'flex';
+            alertBox.className = 'alert-box alert-success';
+            alertBox.querySelector('.alert-msg').textContent = 'Wellness Risk evaluation report saved to profile successfully!';
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logout-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-sign-out-alt modal-icon"></i>
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-desc">Are you sure you want to logout? Any unsaved edits will be discarded.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-logout-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-logout-confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="static/js/app.js"></script>
+    <script src="static/js/voice_assistant.js"></script>
+</body>
+</html>

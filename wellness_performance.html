@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Performance Dashboard - Employee Wellness</title>
+    <meta name="description" content="View your personal health and wellness score, score breakdown, and tailored recommendations on the Wellness Performance Dashboard.">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <style>
+        /* ── Page-level overrides ── */
+        .wpd-hero {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .wpd-hero-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: #fff;
+            box-shadow: 0 6px 20px rgba(16,185,129,.35);
+            flex-shrink: 0;
+        }
+        .wpd-hero h1 {
+            font-size: 26px; font-weight: 800;
+            background: linear-gradient(135deg, #fff 40%, #94a3b8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+        .wpd-hero p {
+            font-size: 13px; color: var(--text-secondary); margin: 3px 0 0;
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px; border-radius: 10px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary); font-size: 13px; font-weight: 600;
+            cursor: pointer; text-decoration: none;
+            transition: background .2s, color .2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.11); color: #fff; }
+
+        /* ── No-data notice ── */
+        .no-data-box {
+            text-align: center; padding: 60px 30px;
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed rgba(255,255,255,0.1);
+            border-radius: 20px; color: var(--text-secondary);
+        }
+        .no-data-box i { font-size: 48px; margin-bottom: 16px; opacity: .4; display: block; }
+        .no-data-box h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .no-data-box p  { font-size: 14px; line-height: 1.6; }
+        .no-data-box a  {
+            display: inline-block; margin-top: 18px;
+            padding: 10px 22px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: #fff; font-weight: 700; font-size: 14px; text-decoration: none;
+            box-shadow: 0 6px 18px rgba(16,185,129,.3);
+            transition: opacity .2s;
+        }
+        .no-data-box a:hover { opacity: .85; }
+
+        /* ── Score card ── */
+        .score-panel {
+            display: flex; gap: 30px; flex-wrap: wrap;
+        }
+        .score-left {
+            flex: 1; min-width: 240px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.02);
+            padding: 30px 20px; border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .score-right {
+            flex: 2; min-width: 300px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 10px;
+        }
+        .factor-item {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 10px 14px; gap: 10px;
+            transition: background .2s;
+        }
+        .factor-item:hover { background: rgba(255,255,255,0.04); }
+        .factor-icon-box {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.03);
+            color: var(--text-secondary); flex-shrink: 0;
+        }
+        .factor-name  { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .factor-value { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .factor-pts   { font-size: 12px; font-weight: 700; flex-shrink: 0; padding-left: 5px; }
+
+        /* ── KPI tiles ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 28px;
+        }
+        .kpi-tile {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px; padding: 20px;
+            display: flex; flex-direction: column; gap: 6px;
+            transition: transform .2s, background .2s;
+        }
+        .kpi-tile:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
+        .kpi-tile .kpi-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: .8px; }
+        .kpi-tile .kpi-val   { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
+        .kpi-tile .kpi-sub   { font-size: 12px; color: var(--text-secondary); }
+        .kpi-icon { font-size: 20px; margin-bottom: 4px; }
+
+        /* ── Interpretation banner ── */
+        .interp-box {
+            background: rgba(16,185,129,.05);
+            border-left: 4px solid var(--primary);
+            padding: 16px; border-radius: 0 12px 12px 0;
+        }
+        .interp-box h5 {
+            font-size: 12px; font-weight: 700; color: var(--primary);
+            text-transform: uppercase; letter-spacing: .6px; margin: 0 0 6px;
+        }
+        .interp-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+
+        /* loading skeleton */
+        .sk { background: rgba(255,255,255,0.07); border-radius: 6px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    </style>
+</head>
+<body id="dashboard-view">
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile" style="align-items:center;">
+                <div class="logo-icon" style="width:32px;height:32px;font-size:14px;margin-bottom:0;border-radius:8px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span style="font-weight:700;font-size:16px;color:#fff;margin-left:10px;">Wellness Hub</span>
+            </div>
+            <button class="sidebar-close" id="btn-sidebar-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                {% if profile_photo %}
+                    <img src="static/uploads/profile_Lakshmi Swetha_photo.jpg" alt="Avatar">
+                {% else %}
+                    {{ username[0].upper() if username else 'U' }}
+                {% endif %}
+            </div>
+            <h4 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:2px;">Lakshmi Swetha</h4>
+            <p style="font-size:12px;color:var(--primary);font-weight:600;">Employee Profile</p>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item"><a href="dashboard.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+            <li class="sidebar-menu-item"><a href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a></li>
+            <li class="sidebar-menu-item"><a href="security.html"><i class="fas fa-shield-halved"></i><span>Security</span></a></li>
+            <li class="sidebar-menu-item"><a id="btn-sidebar-logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Background Blobs -->
+    <div class="bg-bubbles">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Main Wrapper -->
+    <div class="dashboard-wrapper">
+
+        <!-- Header -->
+        <header class="dash-header glass-card" style="padding:15px 30px;border-radius:16px;">
+            <div class="user-profile">
+                <button class="btn-hamburger" id="btn-sidebar-toggle"><i class="fas fa-bars"></i></button>
+                <div class="logo-icon" style="width:40px;height:40px;font-size:16px;margin-bottom:0;border-radius:10px;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="user-info">
+                    <h1 class="project-title" style="font-size:16px;margin-bottom:0;">Employee Wellness</h1>
+                    <p class="project-subtitle" style="font-size:10px;letter-spacing:1px;">Analytics Hub</p>
+                </div>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" style="overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;">
+                    {% if profile_photo %}
+                        <img src="static/uploads/profile_Lakshmi Swetha_photo.jpg" alt="Profile" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                        {{ username[0].upper() if username else 'U' }}
+                    {% endif %}
+                </div>
+                <div class="user-info" style="text-align:left;margin-right:15px;">
+                    <h4>Welcome, Lakshmi Swetha</h4>
+                    <p style="color:var(--primary);">Wellness Specialist</p>
+                </div>
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i><span>Log Out</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Hero -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:10px;">
+            <div class="wpd-hero" style="margin-bottom:0;">
+                <div class="wpd-hero-icon"><i class="fas fa-chart-pie"></i></div>
+                <div>
+                    <h1>5. Wellness Performance Dashboard</h1>
+                    <p>Your personal health score, wellness KPIs, and tailored improvement insights.</p>
+                </div>
+            </div>
+            <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+
+        <!-- ── KPI Tiles ── -->
+        <div class="kpi-grid" id="kpi-grid" style="margin-top:10px;">
+            <!-- Populated by JS -->
+            <div class="kpi-tile"><div class="sk" style="height:20px;width:80px;margin-bottom:8px;"></div><div class="sk" style="height:36px;width:60px;"></div></div>
+            <div class="kpi-tile"><div class="sk" style="height:20px;width:80px;margin-bottom:8px;"></div><div class="sk" style="height:36px;width:60px;"></div></div>
+            <div class="kpi-tile"><div class="sk" style="height:20px;width:80px;margin-bottom:8px;"></div><div class="sk" style="height:36px;width:60px;"></div></div>
+            <div class="kpi-tile"><div class="sk" style="height:20px;width:80px;margin-bottom:8px;"></div><div class="sk" style="height:36px;width:60px;"></div></div>
+        </div>
+
+        <!-- ── Personal Health & Wellness Score Card ── -->
+        <div class="glass-card" id="wellness-score-card"
+             style="margin-top:28px;padding:28px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.45);">
+
+            <!-- Card header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <h2 style="font-size:19px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;margin:0;">
+                    <i class="fas fa-heartbeat" style="color:var(--primary);"></i>
+                    Personal Health &amp; Wellness Score
+                </h2>
+                <span id="health-last-updated" style="font-size:12px;color:var(--text-secondary);">Last updated: —</span>
+            </div>
+
+            <!-- No data placeholder (hidden when data exists) -->
+            <div id="no-data-notice" class="no-data-box" style="display:none;">
+                <i class="fas fa-file-medical-alt"></i>
+                <h3>No Health Data Found</h3>
+                <p>You haven't submitted your health assessment yet.<br>Submit your data to unlock your personal wellness score.</p>
+                <a href="health_data.html">Submit Health Data <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Score layout (hidden until loaded) -->
+            <div class="score-panel" id="score-panel" style="display:none;">
+                <!-- Left: circular score -->
+                <div class="score-left">
+                    <div style="position:relative;width:170px;height:170px;display:flex;align-items:center;justify-content:center;">
+                        <svg width="170" height="170" viewBox="0 0 170 170" style="transform:rotate(-90deg);">
+                            <circle cx="85" cy="85" r="74" stroke="rgba(255,255,255,0.05)" stroke-width="13" fill="transparent"/>
+                            <circle id="circular-progress-bar" cx="85" cy="85" r="74"
+                                    stroke="var(--primary)" stroke-width="13" fill="transparent"
+                                    stroke-dasharray="465" stroke-dashoffset="465"
+                                    stroke-linecap="round"
+                                    style="transition:stroke-dashoffset 1.2s ease-in-out;"/>
+                        </svg>
+                        <div style="position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <span id="health-score-val" style="font-size:46px;font-weight:800;color:#fff;line-height:1;">0</span>
+                            <span style="font-size:11px;color:var(--text-secondary);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Score</span>
+                        </div>
+                    </div>
+                    <!-- Status badge -->
+                    <div id="health-status-badge"
+                         style="margin-top:20px;padding:7px 20px;border-radius:50px;font-size:14px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);">
+                        <i class="fas fa-shield-heart"></i>
+                        <span id="health-status-text">Loading…</span>
+                    </div>
+                    <!-- Score out of 100 label -->
+                    <p style="margin-top:12px;font-size:12px;color:var(--text-secondary);">out of 100 points</p>
+                </div>
+
+                <!-- Right: breakdown + interpretation -->
+                <div class="score-right">
+                    <div>
+                        <h4 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                            <i class="fas fa-list-check" style="color:var(--secondary);"></i>
+                            Health Score Breakdown &amp; Impact Factors
+                        </h4>
+                        <div class="factors-grid" id="health-factors-list">
+                            <!-- populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="interp-box" id="health-interpretation-box">
+                        <h5 id="interp-header">Understanding Your Score:</h5>
+                        <p id="health-score-interpretation">Loading health recommendations…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /dashboard-wrapper -->
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logout-modal-overlay">
+        <div class="confirm-modal">
+            <i class="fas fa-sign-out-alt modal-icon"></i>
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-desc">Are you sure you want to logout? Any unsaved edits will be discarded.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" id="btn-logout-cancel">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-logout-confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/app.js"></script>
+
+    <script>
+    (function () {
+        /* ─── Helpers ─── */
+        function animateCount(el, target, dur) {
+            el.textContent = '0';
+            var start = null;
+            function step(ts) {
+                if (!start) start = ts;
+                var prog = Math.min((ts - start) / dur, 1);
+                var eased = 1 - Math.pow(1 - prog, 3);
+                el.textContent = Math.round(eased * target);
+                if (prog < 1) requestAnimationFrame(step);
+                else el.textContent = target;
+            }
+            requestAnimationFrame(step);
+        }
+
+        var STATUS_COLORS = {
+            'Excellent':         { stroke: '#10b981', bg: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.3)', text: '#10b981', interp: 'rgba(16,185,129,.05)' },
+            'Good':              { stroke: '#3b82f6', bg: 'rgba(59,130,246,.15)',  border: '1px solid rgba(59,130,246,.3)',  text: '#3b82f6', interp: 'rgba(59,130,246,.05)' },
+            'Average':           { stroke: '#f59e0b', bg: 'rgba(245,158,11,.15)', border: '1px solid rgba(245,158,11,.3)', text: '#f59e0b', interp: 'rgba(245,158,11,.05)' },
+            'Needs Improvement': { stroke: '#ef4444', bg: 'rgba(239,68,68,.15)',   border: '1px solid rgba(239,68,68,.3)',   text: '#ef4444', interp: 'rgba(239,68,68,.05)' }
+        };
+
+        /* ─── Load KPI tiles ─── */
+        function loadKPIs() {
+            fetch('/api/dashboard-stats')
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (!d.success) return;
+                    var s = d.stats;
+                    var kpiGrid = document.getElementById('kpi-grid');
+                    kpiGrid.innerHTML = [
+                        makeTile('fa-users',            'Total Employees',    s.total_employees,    'Registered staff',          '#3b82f6'),
+                        makeTile('fa-heart-pulse',      'Healthy Employees',  s.healthy_employees,  'Score ≥ 80',                '#10b981'),
+                        makeTile('fa-triangle-exclamation','High Risk',        s.high_risk_employees,'Score < 50',                '#ef4444'),
+                        makeTile('fa-clipboard-list',   'Pending Assessments',s.pending_assessments,'Awaiting health data',      '#f59e0b')
+                    ].join('');
+                    // animate each kpi-val
+                    kpiGrid.querySelectorAll('.kpi-val[data-target]').forEach(function (el) {
+                        animateCount(el, parseInt(el.dataset.target, 10), 900);
+                    });
+                })
+                .catch(function () {});
+        }
+
+        function makeTile(icon, label, val, sub, color) {
+            return '<div class="kpi-tile">' +
+                '<div class="kpi-icon" style="color:' + color + '"><i class="fas ' + icon + '"></i></div>' +
+                '<div class="kpi-label">' + label + '</div>' +
+                '<div class="kpi-val" data-target="' + val + '">0</div>' +
+                '<div class="kpi-sub">' + sub + '</div>' +
+                '</div>';
+        }
+
+        /* ─── Load Health Score ─── */
+        function loadHealthScore() {
+            fetch('/api/health-score')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    var noData   = document.getElementById('no-data-notice');
+                    var panel    = document.getElementById('score-panel');
+
+                    if (!data.success) {
+                        noData.style.display  = 'block';
+                        panel.style.display   = 'none';
+                        return;
+                    }
+
+                    noData.style.display = 'none';
+                    panel.style.display  = 'flex';
+
+                    var score  = data.health_score  || 0;
+                    var status = data.health_status || 'Average';
+                    var theme  = STATUS_COLORS[status] || STATUS_COLORS['Average'];
+
+                    /* Last updated */
+                    var luEl = document.getElementById('health-last-updated');
+                    if (luEl && data.updated_at) {
+                        var d = new Date(data.updated_at);
+                        if (!isNaN(d.getTime())) {
+                            var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                            luEl.textContent = 'Last updated: ' + mo[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() +
+                                               ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+                        } else {
+                            luEl.textContent = 'Last updated: ' + data.updated_at;
+                        }
+                    }
+
+                    /* Animate score number */
+                    animateCount(document.getElementById('health-score-val'), score, 1300);
+
+                    /* Circular arc */
+                    var arc = document.getElementById('circular-progress-bar');
+                    if (arc) {
+                        var circ = 465;
+                        setTimeout(function () {
+                            arc.style.strokeDashoffset = circ - (circ * score / 100);
+                        }, 120);
+                        arc.style.stroke = theme.stroke;
+                        arc.style.filter = 'drop-shadow(0 0 6px ' + theme.stroke + ')';
+                    }
+
+                    /* Status badge */
+                    var badge    = document.getElementById('health-status-badge');
+                    var badgeTxt = document.getElementById('health-status-text');
+                    if (badge && badgeTxt) {
+                        badgeTxt.textContent      = status;
+                        badge.style.backgroundColor = theme.bg;
+                        badge.style.border          = theme.border;
+                        badge.style.color           = theme.text;
+                    }
+
+                    /* Factor breakdown */
+                    var fl = document.getElementById('health-factors-list');
+                    if (fl && data.breakdown) {
+                        fl.innerHTML = '';
+                        data.breakdown.forEach(function (f) {
+                            var ratio = f.earned / f.max;
+                            var ptCol = ratio >= 0.75 ? '#10b981' : (ratio >= 0.4 ? '#f59e0b' : '#ef4444');
+                            var el = document.createElement('div');
+                            el.className = 'factor-item';
+                            el.innerHTML =
+                                '<div style="display:flex;align-items:center;gap:10px;min-width:0;">' +
+                                '  <div class="factor-icon-box"><i class="fas ' + f.icon + '"></i></div>' +
+                                '  <div style="min-width:0;">' +
+                                '    <div class="factor-name">' + f.name + '</div>' +
+                                '    <div class="factor-value" title="' + f.value + '">' + f.value + '</div>' +
+                                '  </div>' +
+                                '</div>' +
+                                '<div class="factor-pts" style="color:' + ptCol + ';">' + f.earned + '/' + f.max + '</div>';
+                            fl.appendChild(el);
+                        });
+                    }
+
+                    /* Interpretation */
+                    var msgs = {
+                        'Excellent':         'Excellent wellness profile! Your metrics indicate a highly healthy lifestyle. Maintain your regular exercise, high water intake, and balanced habits to sustain this level.',
+                        'Good':              'Good wellness profile! Most of your health indicators are in a healthy range. Focus on improving activity levels and hydration to reach Excellent.',
+                        'Average':           'Average wellness profile. Your health score is ' + score + '/100. Several factors like activity level, water intake, stress, or habits can be optimised.',
+                        'Needs Improvement': 'Your health metrics need attention. We recommend completing regular check-ups, increasing physical activity, staying hydrated, and consulting a health professional.'
+                    };
+                    var interpEl  = document.getElementById('health-score-interpretation');
+                    var interpBox = document.getElementById('health-interpretation-box');
+                    var interpHdr = document.getElementById('interp-header');
+                    if (interpEl && interpBox) {
+                        interpEl.textContent         = msgs[status] || msgs['Average'];
+                        interpBox.style.borderLeftColor = theme.text;
+                        interpBox.style.background      = theme.interp;
+                        if (interpHdr) interpHdr.style.color = theme.text;
+                    }
+                })
+                .catch(function (e) { console.error('Health score error:', e); });
+        }
+
+        /* ─── Init ─── */
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { loadKPIs(); loadHealthScore(); });
+        } else {
+            loadKPIs();
+            loadHealthScore();
+        }
+    })();
+    </script>
+    <script src="static/js/voice_assistant.js"></script>
+</body>
+</html>

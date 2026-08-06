@@ -180,6 +180,25 @@ function initAuth() {
         });
     }
 
+    // Helper: Local Users Database for Static Hosting
+    function getStoredUsers() {
+        try {
+            const users = localStorage.getItem('wellness_app_users');
+            return users ? JSON.parse(users) : [
+                { username: 'admin', password: 'admin123', fullname: 'System Admin', job_role: 'admin', employee_id: '0' },
+                { username: 'swetha', password: '123', fullname: 'Lakshmi Swetha', job_role: 'employee', employee_id: '1' }
+            ];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function saveStoredUser(userObj) {
+        const users = getStoredUsers();
+        users.push(userObj);
+        localStorage.setItem('wellness_app_users', JSON.stringify(users));
+    }
+
     // Login Form Handler
     if (formLogin) {
         formLogin.addEventListener('submit', async (e) => {
@@ -190,25 +209,31 @@ function initAuth() {
             const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) setLoading(submitBtn, true);
 
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
             // Static Web Deployment Handler (GitHub Pages)
             if (window.location.hostname.includes('github.io')) {
-                const username = document.getElementById('login-username').value.trim();
-                const password = document.getElementById('login-password').value;
                 if (!username || !password) {
                     setLoading(submitBtn, false, origBtnHtml);
                     showAlert(alertLogin, 'error', 'Please enter both Username and Password.');
                     return;
                 }
-                localStorage.setItem('currentUser', JSON.stringify({ username: username, role: 'employee' }));
-                showAlert(alertLogin, 'success', 'Login Successful! Redirecting...');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
+                const users = getStoredUsers();
+                const matchedUser = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+                
+                if (matchedUser) {
+                    localStorage.setItem('currentUser', JSON.stringify(matchedUser));
+                    showAlert(alertLogin, 'success', 'Login Successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = matchedUser.job_role === 'admin' ? 'admin.html' : 'dashboard.html';
+                    }, 1000);
+                } else {
+                    setLoading(submitBtn, false, origBtnHtml);
+                    showAlert(alertLogin, 'error', 'Invalid Username or Password. Please check credentials or Sign Up.');
+                }
                 return;
             }
-
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
 
             try {
                 const response = await fetch('/api/login', {
@@ -471,10 +496,25 @@ function initAuth() {
 
             // Static Web Deployment Handler (GitHub Pages)
             if (window.location.hostname.includes('github.io')) {
-                localStorage.setItem('currentUser', JSON.stringify({ username: username, fullname: fullName, email: email }));
+                const jobRole = document.getElementById('reg-jobrole') ? document.getElementById('reg-jobrole').value : 'employee';
+                const employeeId = document.getElementById('reg-employee-id') ? document.getElementById('reg-employee-id').value.trim() : '1';
+                
+                const existingUsers = getStoredUsers();
+                const isDupe = existingUsers.some(u => u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === email.toLowerCase());
+                
+                if (isDupe) {
+                    setLoading(submitBtn, false, origBtnHtml);
+                    showAlert(alertRegister, 'error', 'Username or Email is already registered. Please choose another or Sign In.');
+                    return;
+                }
+
+                const newUser = { username, password, fullname: fullName, email, job_role: jobRole, employee_id: employeeId };
+                saveStoredUser(newUser);
+                localStorage.setItem('currentUser', JSON.stringify(newUser));
+
                 showAlert(alertRegister, 'success', 'Registration Successful! Loading Dashboard...');
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = jobRole === 'admin' ? 'admin.html' : 'dashboard.html';
                 }, 1000);
                 return;
             }
@@ -733,6 +773,17 @@ function initAuth() {
 function initDashboard() {
     initSidebarAndModal();
     initNotifications();
+
+    // Populate user profile from active session
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser) {
+            const displayName = currentUser.fullname || currentUser.username;
+            document.querySelectorAll('.sidebar-user h4, .user-display-name').forEach(el => {
+                if (el && displayName) el.textContent = displayName;
+            });
+        }
+    } catch (_) {}
 
     // Theme Toggle Handler
     const toggleTheme = document.getElementById('toggle-theme');

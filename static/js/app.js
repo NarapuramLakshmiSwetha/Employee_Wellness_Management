@@ -238,7 +238,14 @@ function initAuth() {
                 }
             } catch (err) {
                 setLoading(submitBtn, false, origBtnHtml);
-                showAlert(alertLogin, 'error', 'An error occurred. Please check server connection.');
+                if (window.location.hostname.includes('github.io')) {
+                    showAlert(alertLogin, 'success', 'Demo Mode: Login Successful! Loading Dashboard...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1200);
+                } else {
+                    showAlert(alertLogin, 'error', 'An error occurred. Please check server connection.');
+                }
             }
         });
     }
@@ -283,7 +290,14 @@ function initAuth() {
                 }
             } catch (err) {
                 setLoading(submitBtn, false, origBtnHtml);
-                showAlert(alertAdmin, 'error', 'An error occurred. Please check server connection.');
+                if (window.location.hostname.includes('github.io')) {
+                    showAlert(alertAdmin, 'success', 'Demo Mode: Admin Verification Successful! Loading Admin Portal...');
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1200);
+                } else {
+                    showAlert(alertAdmin, 'error', 'An error occurred. Please check server connection.');
+                }
             }
         });
     }
@@ -502,7 +516,14 @@ function initAuth() {
                 }
             } catch (err) {
                 setLoading(submitBtn, false, origBtnHtml);
-                showAlert(alertRegister, 'error', 'An error occurred. Please check server connection.');
+                if (window.location.hostname.includes('github.io')) {
+                    showAlert(alertRegister, 'success', 'Demo Mode: Registration Successful! Redirecting to Dashboard...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1200);
+                } else {
+                    showAlert(alertRegister, 'error', 'An error occurred. Please check server connection.');
+                }
             }
         });
     }

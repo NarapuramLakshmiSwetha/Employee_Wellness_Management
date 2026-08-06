@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Wellness Management Analytics - Login & Register</title>
+    <!-- Favicon -->
+    <link class="favicon" rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="static/css/style.css?v=1.2">
+    <style>
+        body {
+            display: block !important;
+            min-height: 100vh;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background: linear-gradient(rgba(9, 13, 22, 0.65), rgba(9, 13, 22, 0.65)), url('static/images/wellness_illustration.jpg') no-repeat center center fixed !important;
+            background-size: cover !important;
+        }
+        .auth-page-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+            z-index: 10;
+            position: relative;
+        }
+        .auth-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-premium);
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-link.active {
+            color: var(--secondary);
+            background: rgba(6, 182, 212, 0.1);
+        }
+        .auth-split-container {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 30px;
+            align-items: stretch;
+        }
+        .split-left {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .split-right {
+            height: 100%;
+        }
+        .split-right .glass-card {
+            height: 100% !important;
+            padding: 40px 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        @media (max-width: 900px) {
+            .auth-split-container {
+                grid-template-columns: 1fr;
+            }
+            .auth-nav {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 20px;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Lighting Blobs -->
+    <div class="bg-bubbles" style="display: none;">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="auth-page-wrapper">
+        <!-- Navigation Header -->
+        <nav class="auth-nav">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="logo-icon" style="width: 35px; height: 35px; font-size: 14px; margin-bottom: 0; border-radius: 8px; box-shadow: 0 4px 10px var(--primary-glow);">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 16px; letter-spacing: 0.5px; color: #ffffff;">Wellness Hub</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" id="nav-home">Home</a>
+                <a href="#" class="nav-link" id="nav-about">About</a>
+                <a href="#" class="nav-link" id="nav-login">Login</a>
+                <a href="#" class="nav-link" id="nav-signup">Signup</a>
+            </div>
+        </nav>
+
+        <!-- Split Layout Grid -->
+        <div class="auth-split-container">
+            <!-- Left Side: Branding & Queries Form -->
+            <div class="split-left">
+                <div>
+                    <h2 style="font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #ffffff 40%, #e2e8f0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">
+                        Employee Wellness Management
+                    </h2>
+                    <h4 style="font-size: 14px; color: var(--secondary); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; font-weight: 600;">
+                        Analytics & Prediction System
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 14.5px; line-height: 1.6; margin-bottom: 20px;">
+                        Employee Wellness Management is an AI-powered healthcare platform that helps organizations monitor employee health, analyze wellness data, predict potential health risks, and generate personalized wellness recommendations. The system enables both employees and administrators to make informed decisions that improve workplace health, productivity, and overall well-being.
+                    </p>
+                </div>
+                
+                <!-- Dynamic Illustration shown only on Signup panel view to fill structural gap -->
+                <div id="left-signup-illustration" style="display: none; margin-top: 20px; margin-bottom: 20px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); animation: fadeIn 0.4s ease forwards; flex: 1; min-height: 180px;">
+                    <img src="static/images/signup_illustration.jpg" alt="Signup Illustration" style="width: 100%; height: 100%; display: block; object-fit: cover; filter: brightness(0.95) contrast(1.05);"/>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 25px; position: relative; z-index: 2;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px;">For Any Queries</h3>
+                    <p style="color: var(--text-secondary); font-size: 13.5px; line-height: 1.5; margin-bottom: 20px;">
+                        If you have any questions, suggestions, or need assistance regarding the Employee Wellness Management System, feel free to contact us using the form below.
+                    </p>
+                    
+                    <!-- Contact Form -->
+                    <form id="contact-form" action="https://formspree.io/f/xaqdeaqq" method="POST">
+                        <div id="contact-alert" class="alert-box" style="display: none; margin-bottom: 15px; padding: 10px 15px; border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-info-circle alert-icon"></i>
+                            <span class="alert-msg"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <div class="input-container">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" name="name" id="contact-name" class="form-control" placeholder="Your Name" required style="padding-left: 45px; height: 44px; border-radius: 10px;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <div class="input-container">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" name="email" id="contact-email" class="form-control" placeholder="Your Email" required style="padding-left: 45px; height: 44px; border-radius: 10px;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <div class="input-container">
+                                <i class="fas fa-comment input-icon" style="top: 15px;"></i>
+                                <textarea name="message" id="contact-message" class="form-control" placeholder="Your Message" required style="padding-left: 45px; height: 100px; border-radius: 10px; resize: none; padding-top: 12px;"></textarea>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit" id="btn-contact-submit" style="height: 44px; border-radius: 10px; font-size: 14px;">
+                            <span>Send Message</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    
+                </div>
+            </div>
+
+            <!-- Right Side: Forms Card -->
+            <div class="split-right">
+                <div class="glass-card">
+                    <!-- Header -->
+                    <div class="card-header">
+                        <div class="logo-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h1 class="project-title">Employee Wellness</h1>
+                        <p class="project-subtitle">Management Analytics</p>
+                    </div>
+
+                    <!-- Tabs to toggle forms -->
+                    <div class="auth-tabs">
+                        <button class="tab-btn active" id="tab-login">Sign In</button>
+                        <button class="tab-btn" id="tab-register">Sign Up</button>
+                        <button class="tab-btn" id="tab-admin">Admin</button>
+                    </div>
+
+                    <!-- Sign In Panel -->
+                    <div class="auth-panel active" id="panel-login">
+                        <div class="alert-box" id="alert-login">
+                            <i class="fas fa-info-circle alert-icon"></i>
+                            <span class="alert-msg"></span>
+                        </div>
+
+                        <form id="form-login">
+                            <div class="form-group">
+                                <label for="login-username" class="form-label">Username</label>
+                                <div class="input-container">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" id="login-username" class="form-control" placeholder="Enter username" required autocomplete="username">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="login-password" class="form-label">Password</label>
+                                <div class="input-container">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="login-password" class="form-control" placeholder="Enter password" required autocomplete="current-password">
+                                    <i class="fas fa-eye-slash password-toggle"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="display: flex; justify-content: flex-end; margin-top: -10px; margin-bottom: 20px;">
+                                <a href="#" id="link-forgot-password" class="auth-link">Forgot Password?</a>
+                            </div>
+
+                            <button type="submit" class="btn-submit">
+                                <span>Sign In</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Admin Sign In Panel -->
+                    <div class="auth-panel" id="panel-admin">
+                        <div class="alert-box" id="alert-admin">
+                            <i class="fas fa-info-circle alert-icon"></i>
+                            <span class="alert-msg"></span>
+                        </div>
+
+                        <form id="form-admin">
+                            <div class="form-group">
+                                <label for="admin-username" class="form-label">Admin Username</label>
+                                <div class="input-container">
+                                    <i class="fas fa-user-shield input-icon"></i>
+                                    <input type="text" id="admin-username" class="form-control" placeholder="Enter admin username" required autocomplete="username">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="admin-password" class="form-label">Password</label>
+                                <div class="input-container">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="admin-password" class="form-control" placeholder="Enter admin password" required autocomplete="current-password">
+                                    <i class="fas fa-eye-slash password-toggle"></i>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, var(--danger) 0%, var(--accent) 100%); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.45);">
+                                <span>Admin Sign In</span>
+                                <i class="fas fa-shield-halved"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Sign Up Panel -->
+                    <div class="auth-panel" id="panel-register">
+                        <div class="alert-box" id="alert-register">
+                            <i class="fas fa-info-circle alert-icon"></i>
+                            <span class="alert-msg"></span>
+                        </div>
+
+                        <form id="form-register">
+                            <div class="form-group">
+                                <label for="reg-fullname" class="form-label">Full Name</label>
+                                <div class="input-container">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" id="reg-fullname" class="form-control" placeholder="Enter full name" required autocomplete="name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-employee-id" class="form-label">Employee ID</label>
+                                <div class="input-container">
+                                    <i class="fas fa-id-badge input-icon"></i>
+                                    <input type="text" id="reg-employee-id" class="form-control" placeholder="Enter employee ID" required autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-username" class="form-label">Username</label>
+                                <div class="input-container">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" id="reg-username" class="form-control" placeholder="Choose a username" required autocomplete="username">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-email" class="form-label">Email Address</label>
+                                <div class="input-container">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    <input type="email" id="reg-email" class="form-control" placeholder="Enter email" required autocomplete="email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-mobile" class="form-label">Mobile Number</label>
+                                <div class="input-container">
+                                    <i class="fas fa-phone input-icon"></i>
+                                    <input type="tel" id="reg-mobile" class="form-control" placeholder="Enter mobile number" required autocomplete="tel" pattern="\d{10}" title="Mobile number must be exactly 10 digits">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-password" class="form-label">Password</label>
+                                <div class="input-container">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="reg-password" class="form-control" placeholder="Create strong password" required autocomplete="new-password">
+                                    <i class="fas fa-eye-slash password-toggle"></i>
+                                </div>
+                                <div class="strength-indicator">
+                                    <div class="strength-bar">
+                                        <div class="strength-progress" id="strength-progress"></div>
+                                    </div>
+                                    <span class="strength-text" id="strength-text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-confirm" class="form-label">Confirm Password</label>
+                                <div class="input-container">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="reg-confirm" class="form-control" placeholder="Confirm password" required autocomplete="new-password">
+                                    <i class="fas fa-eye-slash password-toggle"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-jobrole" class="form-label">Job Role</label>
+                                <div class="input-container">
+                                    <i class="fas fa-briefcase input-icon"></i>
+                                    <select id="reg-jobrole" class="form-control" required>
+                                        <option value="" disabled selected>Select job role</option>
+                                        <option>HR Manager</option>
+                                        <option>Software Engineer</option>
+                                        <option>Team Leader</option>
+                                        <option>Project Manager</option>
+                                        <option>Data Analyst</option>
+                                        <option>Intern</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <div class="input-container" style="display:flex;gap:1rem;align-items:center;">
+                                    <label><input type="radio" name="reg-gender" value="Male" required> Male</label>
+                                    <label><input type="radio" name="reg-gender" value="Female"> Female</label>
+                                    <label><input type="radio" name="reg-gender" value="Other"> Other</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-dob" class="form-label">Date of Birth</label>
+                                <div class="input-container">
+                                    <i class="fas fa-calendar-alt input-icon"></i>
+                                    <input type="date" id="reg-dob" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-photo" class="form-label">Profile Photo (optional)</label>
+                                <div class="input-container">
+                                    <i class="fas fa-image input-icon"></i>
+                                    <input type="file" id="reg-photo" class="form-control" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group" style="display:flex;gap:1rem;justify-content:center;margin-top:20px;">
+                                <button type="submit" class="btn-submit">Register</button>
+                                <button type="reset" class="btn-submit" style="background:#777;">Clear</button>
+                                <button type="button" class="btn-submit" id="back-to-login" style="background:#555;">Back to Login</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Forgot Password Panel -->
+                    <div class="auth-panel" id="panel-forgot">
+                        <div class="alert-box" id="alert-forgot">
+                            <i class="fas fa-info-circle alert-icon"></i>
+                            <span class="alert-msg"></span>
+                        </div>
+
+                        <form id="form-forgot">
+                            <div class="form-group">
+                                <label for="forgot-password" class="form-label">New Password</label>
+                                <div class="input-container">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="forgot-password" class="form-control" placeholder="Enter new password" required autocomplete="new-password">
+                                    <i class="fas fa-eye-slash password-toggle"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="forgot-confirm-password" class="form-label">Confirm New Password</label>
+                                <div class="input-container">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="forgot-confirm-password" class="form-control" placeholder="Confirm new password" required autocomplete="new-password">
+                                    <i class="fas fa-eye-slash password-toggle"></i>
+                                </div>
+                            </div>
+                            <div class="form-group" style="display: flex; justify-content: center; margin-top: 20px;">
+                                <button type="submit" class="btn-submit">Reset Password</button>
+                            </div>
+                            <div class="forgot-footer">
+                                <a href="#" id="link-back-login" class="auth-link">Back to Sign In</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div class="modal-overlay" id="otp-modal-overlay">
+        <div class="confirm-modal" style="background: rgba(15, 23, 42, 0.85); max-width: 420px;">
+            <i class="fas fa-shield-alt modal-icon" style="color: var(--secondary); margin-bottom: 15px;"></i>
+            <h3 class="modal-title">Two-Factor Authentication</h3>
+            <p class="modal-desc" style="margin-bottom: 20px;">Please enter the 6-digit OTP code sent to your registered email address.</p>
+            
+            <!-- Alert Box inside modal -->
+            <div class="alert-box" id="alert-otp" style="display: none; margin-bottom: 20px;">
+                <i class="fas fa-info-circle alert-icon"></i>
+                <span class="alert-msg"></span>
+            </div>
+
+            <form id="form-otp" style="text-align: left; width: 100%;">
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label for="otp-input" class="form-label" style="display: block; text-align: center; margin-bottom: 10px;">One-Time Password (OTP)</label>
+                    <div class="input-container" style="max-width: 250px; margin: 0 auto;">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="text" id="otp-input" class="form-control" placeholder="123456" required maxlength="6" pattern="\d{6}" style="text-align: center; letter-spacing: 4px; font-size: 18px; font-weight: bold;" autocomplete="one-time-code">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal btn-modal-cancel" id="btn-otp-cancel">Cancel</button>
+                    <button type="submit" class="btn-modal btn-modal-confirm" id="btn-otp-confirm" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);">Verify</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal-overlay" id="about-modal-overlay">
+        <div class="confirm-modal" style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; padding: 35px; max-width: 750px; max-height: 85vh; overflow-y: auto; text-align: left; box-shadow: 0 20px 50px rgba(0,0,0,0.6); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                <h2 style="font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px; margin: 0;">
+                    <i class="fas fa-info-circle" style="color: var(--secondary);"></i> About System
+                </h2>
+                <button class="sidebar-close" id="btn-about-close" style="background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-secondary);">
+                <h3 style="font-size: 20px; color: #fff; margin-bottom: 15px; font-weight: 700;">Employee Wellness Management</h3>
+                <p style="margin-bottom: 25px; color: var(--text-primary);">
+                    Employee Wellness Management is an AI-powered healthcare analytics platform that helps organizations monitor employee health, predict wellness risks, and provide personalized recommendations for improving employee well-being.
+                </p>
+                
+                <h3 style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Project Overview</h3>
+                <p style="margin-bottom: 25px;">
+                    The system enables employees and administrators to make informed decisions that improve workplace health, productivity, and overall well-being. By integrating advanced health prediction models and comprehensive record tracking, the system builds a bridge between proactive care and office wellness.
+                </p>
+
+                <h3 style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Project Objectives</h3>
+                <ul style="list-style: none; margin-bottom: 25px; padding-left: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+                    <li><i class="fas fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Early Health Risk Detection</li>
+                    <li><i class="fas fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Better Employee Wellness</li>
+                    <li><i class="fas fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Increased Productivity</li>
+                    <li><i class="fas fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Secure Health Data Management</li>
+                    <li><i class="fas fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> AI-powered Health Insights</li>
+                </ul>
+
+                <h3 style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Key Modules</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                    <div>
+                        <h4 style="font-size: 14px; color: var(--secondary); margin-bottom: 10px; font-weight: 600;">Employee Module</h4>
+                        <ul style="padding-left: 20px; margin-bottom: 0;">
+                            <li>Registration</li>
+                            <li>Login</li>
+                            <li>Employee Health Data</li>
+                            <li>Wellness Risk Prediction</li>
+                            <li>Personalized Recommendations</li>
+                            <li>AI Voice Assistant</li>
+                            <li>Health Score</li>
+                            <li>PDF Report Download</li>
+                            <li>Notifications</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 14px; color: var(--secondary); margin-bottom: 10px; font-weight: 600;">Admin Module</h4>
+                        <ul style="padding-left: 20px; margin-bottom: 0;">
+                            <li>Admin Login</li>
+                            <li>Dashboard</li>
+                            <li>Employee Management</li>
+                            <li>Login History</li>
+                            <li>Dashboard Analytics</li>
+                            <li>Employee Reports</li>
+                            <li>PDF Generation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">AI Features</h3>
+                <ul style="list-style: none; margin-bottom: 25px; padding-left: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">
+                    <li><i class="fas fa-robot" style="color: var(--secondary); margin-right: 8px;"></i> Wellness Risk Prediction</li>
+                    <li><i class="fas fa-lightbulb" style="color: var(--secondary); margin-right: 8px;"></i> Personalized Recommendations</li>
+                    <li><i class="fas fa-volume-up" style="color: var(--secondary); margin-right: 8px;"></i> AI Voice Assistant</li>
+                    <li><i class="fas fa-calculator" style="color: var(--secondary); margin-right: 8px;"></i> Health Score Calculation</li>
+                </ul>
+
+
+                <h3 style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Benefits</h3>
+                <ul style="list-style: none; margin-bottom: 25px; padding-left: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+                    <li><i class="fas fa-plus" style="color: var(--primary); margin-right: 8px;"></i> Early Health Risk Detection</li>
+                    <li><i class="fas fa-plus" style="color: var(--primary); margin-right: 8px;"></i> Better Employee Wellness</li>
+                    <li><i class="fas fa-plus" style="color: var(--primary); margin-right: 8px;"></i> Increased Productivity</li>
+                    <li><i class="fas fa-plus" style="color: var(--primary); margin-right: 8px;"></i> Secure Health Data Management</li>
+                    <li><i class="fas fa-plus" style="color: var(--primary); margin-right: 8px;"></i> AI-powered Health Insights</li>
+                </ul>
+
+                <h3 style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 700;">Contact</h3>
+                <p style="margin-bottom: 0;">
+                    For any queries, users can use the Contact Us form available on the Home page.
+                </p>
+            </div>
+            <div style="margin-top: 30px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 20px;">
+                <button class="btn-modal btn-modal-cancel" id="btn-about-close-footer" style="padding: 10px 24px; border-radius: 8px;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="static/js/app.js?v=1.2"></script>
+    <script>
+        // Custom Scripting for Split-Screen Nav & Contact Formspree Submissions
+        document.addEventListener('DOMContentLoaded', () => {
+            const aboutModal = document.getElementById('about-modal-overlay');
+            
+            // Utility: Update Active Navigation Link
+            function updateActiveNav(activeId) {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                const activeLink = document.getElementById(activeId);
+                if (activeLink) activeLink.classList.add('active');
+            }
+
+            // Toggle illustration under queries form for Signup gap fill
+            const leftIllustration = document.getElementById('left-signup-illustration');
+            function toggleLeftIllustration(show) {
+                if (leftIllustration) {
+                    leftIllustration.style.display = show ? 'block' : 'none';
+                }
+            }
+
+            // Bind Navigation links to switch tabs inside the authentication card
+            document.getElementById('nav-home')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('tab-login')?.click();
+                updateActiveNav('nav-home');
+                toggleLeftIllustration(false);
+            });
+
+            document.getElementById('nav-login')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('tab-login')?.click();
+                updateActiveNav('nav-login');
+                toggleLeftIllustration(false);
+            });
+
+            document.getElementById('nav-signup')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('tab-register')?.click();
+                updateActiveNav('nav-signup');
+                toggleLeftIllustration(true);
+            });
+
+            // Update Nav Highlights when user clicks tabs inside the login card
+            document.getElementById('tab-login')?.addEventListener('click', () => {
+                updateActiveNav('nav-login');
+                toggleLeftIllustration(false);
+            });
+            document.getElementById('tab-register')?.addEventListener('click', () => {
+                updateActiveNav('nav-signup');
+                toggleLeftIllustration(true);
+            });
+            document.getElementById('tab-admin')?.addEventListener('click', () => {
+                updateActiveNav('nav-home');
+                toggleLeftIllustration(false);
+            });
+            document.getElementById('back-to-login')?.addEventListener('click', () => {
+                updateActiveNav('nav-login');
+                toggleLeftIllustration(false);
+            });
+            document.getElementById('back-to-login')?.addEventListener('click', () => {
+                updateActiveNav('nav-login');
+                toggleLeftIllustration(false);
+            });
+            document.getElementById('link-back-login')?.addEventListener('click', () => {
+                updateActiveNav('nav-login');
+                toggleLeftIllustration(false);
+            });
+
+            // About modal controls using standard modal overlays classes
+            document.getElementById('nav-about')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                aboutModal.classList.add('active');
+            });
+            document.getElementById('btn-about-close')?.addEventListener('click', () => {
+                aboutModal.classList.remove('active');
+            });
+            document.getElementById('btn-about-close-footer')?.addEventListener('click', () => {
+                aboutModal.classList.remove('active');
+            });
+            aboutModal.addEventListener('click', (e) => {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('active');
+                }
+            });
+
+            // Contact Form formspree Ajax submit handler
+            const contactForm = document.getElementById('contact-form');
+            const contactAlert = document.getElementById('contact-alert');
+            const contactAlertMsg = contactAlert.querySelector('.alert-msg');
+            const contactSubmitBtn = document.getElementById('btn-contact-submit');
+
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Reset alert status
+                contactAlert.style.display = 'none';
+                contactAlert.className = 'alert-box';
+
+                // Basic validation
+                const name = document.getElementById('contact-name').value.trim();
+                const email = document.getElementById('contact-email').value.trim();
+                const message = document.getElementById('contact-message').value.trim();
+
+                if (!name || !email || !message) {
+                    contactAlert.style.display = 'flex';
+                    contactAlert.classList.add('alert-error');
+                    contactAlertMsg.textContent = 'Please fill out all fields.';
+                    return;
+                }
+
+                contactSubmitBtn.disabled = true;
+                const originalHtml = contactSubmitBtn.innerHTML;
+                contactSubmitBtn.innerHTML = '<span>Sending...</span><i class="fas fa-spinner fa-spin"></i>';
+
+                try {
+                    const response = await fetch('https://formspree.io/f/xaqdeaqq', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ name, email, message })
+                    });
+
+                    if (response.ok) {
+                        contactAlert.style.display = 'flex';
+                        contactAlert.classList.add('alert-success');
+                        contactAlertMsg.textContent = 'Thank you! Your message has been sent successfully.';
+                        contactForm.reset();
+                    } else {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Submission failed.');
+                    }
+                } catch (err) {
+                    contactAlert.style.display = 'flex';
+                    contactAlert.classList.add('alert-error');
+                    contactAlertMsg.textContent = 'Error: ' + err.message;
+                } finally {
+                    contactSubmitBtn.disabled = false;
+                    contactSubmitBtn.innerHTML = originalHtml;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

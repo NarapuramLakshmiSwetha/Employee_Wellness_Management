@@ -190,9 +190,17 @@ function initAuth() {
             const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) setLoading(submitBtn, true);
 
-            // GitHub Pages Demo Mode Bypass
+            // Static Web Deployment Handler (GitHub Pages)
             if (window.location.hostname.includes('github.io')) {
-                showAlert(alertLogin, 'success', 'Demo Mode: Login Successful! Redirecting to Dashboard...');
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value;
+                if (!username || !password) {
+                    setLoading(submitBtn, false, origBtnHtml);
+                    showAlert(alertLogin, 'error', 'Please enter both Username and Password.');
+                    return;
+                }
+                localStorage.setItem('currentUser', JSON.stringify({ username: username, role: 'employee' }));
+                showAlert(alertLogin, 'success', 'Login Successful! Redirecting...');
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
@@ -267,9 +275,17 @@ function initAuth() {
             const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) setLoading(submitBtn, true);
 
-            // GitHub Pages Demo Mode Bypass
+            // Static Web Deployment Handler (GitHub Pages)
             if (window.location.hostname.includes('github.io')) {
-                showAlert(alertAdmin, 'success', 'Demo Mode: Admin Verification Successful! Loading Admin Portal...');
+                const username = document.getElementById('admin-username').value.trim();
+                const password = document.getElementById('admin-password').value;
+                if (!username || !password) {
+                    setLoading(submitBtn, false, origBtnHtml);
+                    showAlert(alertAdmin, 'error', 'Please enter Admin credentials.');
+                    return;
+                }
+                localStorage.setItem('currentUser', JSON.stringify({ username: username, role: 'admin' }));
+                showAlert(alertAdmin, 'success', 'Admin Verification Successful! Loading Portal...');
                 setTimeout(() => {
                     window.location.href = 'admin.html';
                 }, 1000);
@@ -423,20 +439,45 @@ function initAuth() {
 
             const submitBtn = formRegister.querySelector('.btn-submit');
             const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const mobile = document.getElementById('reg-mobile').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm').value;
+            const fullName = document.getElementById('reg-fullname').value.trim();
+
+            if (!username || !email || !password || !fullName) {
+                showAlert(alertRegister, 'error', 'Please fill out all required fields.');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showAlert(alertRegister, 'error', 'Email address must contain @.');
+                return;
+            }
+
+            if (mobile && !/^\d{10}$/.test(mobile)) {
+                showAlert(alertRegister, 'error', 'Mobile number must be exactly 10 digits.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert(alertRegister, 'error', 'Passwords do not match.');
+                return;
+            }
+
             if (submitBtn) setLoading(submitBtn, true);
 
-            // GitHub Pages Demo Mode Bypass
+            // Static Web Deployment Handler (GitHub Pages)
             if (window.location.hostname.includes('github.io')) {
-                showAlert(alertRegister, 'success', 'Demo Mode: Registration Successful! Loading Dashboard...');
+                localStorage.setItem('currentUser', JSON.stringify({ username: username, fullname: fullName, email: email }));
+                showAlert(alertRegister, 'success', 'Registration Successful! Loading Dashboard...');
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
                 return;
             }
-
-            const username = document.getElementById('reg-username').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const mobile = document.getElementById('reg-mobile').value.trim();
             const password = document.getElementById('reg-password').value;
             const confirmPassword = document.getElementById('reg-confirm').value;
             const jobRole = document.getElementById('reg-jobrole').value;

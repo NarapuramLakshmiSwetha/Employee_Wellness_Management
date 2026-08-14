@@ -1,8 +1,14 @@
 import sqlite3
 import datetime
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_FILE = 'wellness.db'
+# On Vercel (serverless), use /tmp/ which is the only writable directory.
+# Locally, use the project directory.
+if os.environ.get('VERCEL'):
+    DB_FILE = '/tmp/wellness.db'
+else:
+    DB_FILE = 'wellness.db'
 
 def get_db_connection():
     conn = sqlite3.connect(DB_FILE)

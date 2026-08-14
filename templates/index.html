@@ -212,9 +212,9 @@
 
                     <!-- Tabs to toggle forms -->
                     <div class="auth-tabs">
-                        <button class="tab-btn active" id="tab-login">Sign In</button>
-                        <button class="tab-btn" id="tab-register">Sign Up</button>
-                        <button class="tab-btn" id="tab-admin">Admin</button>
+                        <button class="tab-btn active" id="tab-login" onclick="window.showPanel('login')">Sign In</button>
+                        <button class="tab-btn" id="tab-register" onclick="window.showPanel('register')">Sign Up</button>
+                        <button class="tab-btn" id="tab-admin" onclick="window.showPanel('admin')">Admin</button>
                     </div>
 
                     <!-- Sign In Panel -->
@@ -552,7 +552,7 @@
     </div>
 
     <!-- Frontend Script -->
-    <script src="{{ url_for('static', filename='js/app.js') }}?v=7.0"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=8.0"></script>
     <script>
         // Custom Scripting for Split-Screen Nav & Contact Formspree Submissions
         document.addEventListener('DOMContentLoaded', () => {
@@ -597,6 +597,7 @@
                     toggleLeftIllustration(false);
                 }
             }
+            window.showPanel = showPanel;
 
             document.getElementById('nav-home')?.addEventListener('click', (e) => { e.preventDefault(); showPanel('login'); });
             document.getElementById('nav-login')?.addEventListener('click', (e) => { e.preventDefault(); showPanel('login'); });

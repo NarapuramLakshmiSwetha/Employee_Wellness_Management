@@ -11,21 +11,28 @@ from werkzeug.utils import secure_filename
 from fpdf import FPDF
 import database
 import google.generativeai as genai
-# Register employee recommendations blueprint
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+# Initialize Flask app
+app = Flask(__name__)
+# Use a stable secret key from env var (needed for Vercel so sessions work across invocations)
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
+# Register blueprints
 from routes.recommendations import recommendations_bp
 app.register_blueprint(recommendations_bp)
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # Try to configure Gemini API using the environment variable if present
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 if gemini_api_key:
-    genai.configure(api_key=gemini_api_key)
-app = Flask(__name__)
-# Secure secret key for session signing
-app.secret_key = os.urandom(24)
+    try:
+        genai.configure(api_key=gemini_api_key)
+    except Exception as e:
+        app.logger.error(f"Failed to configure Gemini API: {e}")
 
-# Configure Uploads
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+# Configure Uploads — use /tmp/ on Vercel (only writable directory)
+if os.environ.get('VERCEL'):
+    UPLOAD_FOLDER = '/tmp/uploads'
+else:
+    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}

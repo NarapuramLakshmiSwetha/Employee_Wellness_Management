@@ -7,10 +7,27 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Locally, use the project directory.
 if os.environ.get('VERCEL'):
     DB_FILE = '/tmp/wellness.db'
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    bundled_db = os.path.join(base_dir, 'wellness.db')
+    if not os.path.exists(DB_FILE) and os.path.exists(bundled_db):
+        import shutil
+        try:
+            shutil.copyfile(bundled_db, DB_FILE)
+        except Exception as e:
+            print(f"Failed to copy bundled database to /tmp: {e}")
 else:
-    DB_FILE = 'wellness.db'
+    DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wellness.db')
 
 def get_db_connection():
+    if os.environ.get('VERCEL') and not os.path.exists(DB_FILE):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        bundled_db = os.path.join(base_dir, 'wellness.db')
+        if os.path.exists(bundled_db):
+            import shutil
+            try:
+                shutil.copyfile(bundled_db, DB_FILE)
+            except Exception as e:
+                print(f"Failed to copy bundled database to /tmp: {e}")
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     return conn
